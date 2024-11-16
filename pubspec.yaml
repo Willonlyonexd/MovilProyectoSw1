@@ -16,6 +16,10 @@ dependencies:
   cupertino_icons: ^1.0.6 # iOS style icons support
   lottie: ^2.2.0 # For Lottie animations
 
+
+
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -30,6 +34,8 @@ flutter:
     - assets/Lottie/Animation-Login1.json
     - assets/Lottie/Animation-Home.json
     - assets/Lottie/Animation-CrearSala.json
+    - assets/Lottie/Animation-joinsala.json
+
 
   fonts:
     - family: Starshines
