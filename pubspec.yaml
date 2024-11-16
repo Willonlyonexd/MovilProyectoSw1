@@ -1,0 +1,37 @@
+name: reproductor_colaborativo_sw1
+description: "A new Flutter project."
+
+# The following line prevents the package from being accidentally published to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# Version number for your application
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6 # iOS style icons support
+  lottie: ^2.2.0 # For Lottie animations
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0 # Linting rules for clean code
+
+flutter:
+  # Enables Material Design Icons
+  uses-material-design: true
+
+  # Declare assets here
+  assets:
+    - assets/Lottie/Animation-Login1.json
+    - assets/Lottie/Animation-Home.json
+    - assets/Lottie/Animation-CrearSala.json
+
+  fonts:
+    - family: Starshines
+      fonts:
+        - asset: assets/Fonts/Starshines.ttf
