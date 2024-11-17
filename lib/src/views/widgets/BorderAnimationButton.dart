@@ -54,6 +54,7 @@ class _BorderAnimationButtonState extends State<BorderAnimationButton>
               animationValue: _controller.value,
               borderColor: widget.borderColor,
               borderWidth: widget.borderWidth,
+              borderRadius: 30, // Radio del borde redondeado
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -83,11 +84,13 @@ class BorderAnimationPainter extends CustomPainter {
   final double animationValue;
   final Color borderColor;
   final double borderWidth;
+  final double borderRadius;
 
   BorderAnimationPainter({
     required this.animationValue,
     required this.borderColor,
     required this.borderWidth,
+    required this.borderRadius,
   });
 
   @override
@@ -97,21 +100,43 @@ class BorderAnimationPainter extends CustomPainter {
       ..strokeWidth = borderWidth
       ..style = PaintingStyle.stroke;
 
-    final double perimeter = (size.width * 2 + size.height * 2);
-    final double animatedLength = perimeter * animationValue;
+    // Creamos el rectángulo con bordes redondeados
+    final RRect roundedRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
 
-    final Path path = Path()
-      ..moveTo(0, 0) // Esquina superior izquierda
-      ..lineTo(size.width, 0) // Línea superior
-      ..lineTo(size.width, size.height) // Línea derecha
-      ..lineTo(0, size.height) // Línea inferior
-      ..close(); // Cerrar el contorno (hacia la izquierda)
+    // Creamos el Path del borde redondeado
+    final Path path = Path()..addRRect(roundedRect);
 
+    // Calculamos el perímetro total
     final PathMetric pathMetric = path.computeMetrics().first;
-    final Path extractPath =
-        pathMetric.extractPath(animatedLength, animatedLength + perimeter / 4);
+    final double perimeter = pathMetric.length;
 
-    canvas.drawPath(extractPath, paint);
+    // Calculamos la posición animada y el segmento visible
+    final double start = perimeter * animationValue;
+    final double end = start + perimeter / 2; // Visible la mitad del perímetro
+
+    // Manejo continuo: usar % para que la animación sea fluida
+    final Path segment = Path();
+    if (end > perimeter) {
+      segment.addPath(
+        pathMetric.extractPath(start, perimeter),
+        Offset.zero,
+      );
+      segment.addPath(
+        pathMetric.extractPath(0, end - perimeter),
+        Offset.zero,
+      );
+    } else {
+      segment.addPath(
+        pathMetric.extractPath(start, end),
+        Offset.zero,
+      );
+    }
+
+    // Dibujamos el borde animado
+    canvas.drawPath(segment, paint);
   }
 
   @override

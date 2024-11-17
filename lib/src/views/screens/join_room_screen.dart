@@ -1,93 +1,132 @@
 import 'package:flutter/material.dart';
-
-class JoinRoomScreen extends StatelessWidget {
+import 'package:lottie/lottie.dart'; // Importa Lottie
+import '../widgets/code_join.dart'; 
+import '../widgets/animated_gradient_text.dart'; // Asegúrate de importar el widget de texto animado
+import '../widgets/BorderAnimationButton.dart'; // Importa el widget del botón animado
+// Importa el widget de texto animado
+class JoinRoomScreen extends StatefulWidget {
   const JoinRoomScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController codeController = TextEditingController();
+  _JoinRoomScreenState createState() => _JoinRoomScreenState();
+}
 
+class _JoinRoomScreenState extends State<JoinRoomScreen> {
+  final TextEditingController _codeController = TextEditingController();
+  final ValueNotifier<String> _codeNotifier = ValueNotifier<String>('');
+
+  @override
+  void initState() {
+    super.initState();
+    _codeController.addListener(() {
+      _codeNotifier.value = _codeController.text; // Actualiza el estado del código
+    });
+  }
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    _codeNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Unirse a una Sala'),
-        backgroundColor: Colors.green,
-      ),
-      backgroundColor: Colors.black, // Fondo oscuro
+      backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Título
+            const SizedBox(height: 55),
+            
+
+            // Texto en la parte superior con degradado
+            AnimatedMovingGradientText(
+              text: 'Únete a la sala con tus amigos',
+              textStyle: const TextStyle(
+                fontSize: 26, // Tamaño estándar
+                fontWeight: FontWeight.bold, // Negrita
+              ),
+              gradientColors: [
+                Colors.blue,
+                Colors.purple,
+                Colors.pink,
+                Colors.red,
+                Colors.orange,
+                Colors.yellow,
+              ],
+              duration: const Duration(seconds: 5), // Duración del degradado
+            ),
+            const SizedBox(height: 20),
+
+            // Animación Lottie
+            Center(
+              child: Lottie.asset(
+                'assets/Lottie/Animation-joinsala.json', // Ruta al archivo Lottie
+                width: 250,
+                height: 250,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Texto adicional
             const Text(
-              'Ingresa el código de la sala',
+              'Pide al anfitrión que te comparta el código de acceso',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 18,
+                color: Colors.white70, // Color blanco más tenue
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
 
-            // Campo de entrada de código
-            TextField(
-              controller: codeController,
-              maxLength: 4, // Máximo 4 dígitos
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: '1234',
-                hintStyle: const TextStyle(color: Colors.white54),
-                counterText: '', // Oculta el contador de caracteres
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              textAlign: TextAlign.center,
+            // Campo de entrada personalizado
+            CodeInputField(
+              length: 4, // Número de dígitos
+              onCompleted: (code) {
+                _codeController.text = code; // Almacena el código ingresado
+              },
             ),
             const SizedBox(height: 30),
 
             // Botón para confirmar
-            ElevatedButton(
-              onPressed: () {
-                final code = codeController.text.trim();
-                if (code.length == 4) {
-                  // Lógica para verificar el código
-                  print('Código ingresado: $code');
-                  // Aquí puedes verificar si el código es válido y redirigir
-                  Navigator.pushNamed(context, '/main_room'); // Cambia la ruta según tu configuración
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Por favor, ingresa un código válido de 4 dígitos.',
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
+            ValueListenableBuilder<String>(
+              valueListenable: _codeNotifier,
+              builder: (context, code, child) {
+                return BorderAnimationButton(
+                  onPressed: () {
+                    if (code.length == 4) {
+                      if (code == '1234') {
+                        Navigator.pushNamed(context, '/main_room');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Código inválido'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor, ingresa un código de 4 dígitos.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+
+                  
+                  text: 'Ingresar',
+                  borderColor: Colors.green,
+                  textColor: Colors.white,
+                  buttonColor: Colors.grey[900]!,
+                  borderWidth: 3.0,
+                );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text(
-                'Unirse',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
             ),
           ],
         ),

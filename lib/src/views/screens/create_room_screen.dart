@@ -134,6 +134,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               Center(
                 child: BorderAnimationButton(
                   onPressed: () {
+                    // Verifica si el nombre de la sala está vacío
                     if (_roomNameController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -145,11 +146,17 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                       return;
                     }
 
-                    print('Sala creada:');
-                    print('Nombre: ${_roomNameController.text}');
-                    print('Género: $_selectedGenre');
-                    print('Con animador: $_hasAnimator');
-                    // Aquí puedes manejar la lógica para guardar los datos o redirigir
+                    // Redirige a PrincipalRoomScreen con los datos de la sala
+                    Navigator.pushNamed(
+                      context,
+                      '/principal_room',
+                      arguments: {
+                        'roomName': _roomNameController.text,
+                        'roomCode': 'ABCD', // Código de sala generado (puedes cambiarlo)
+                        'genre': _selectedGenre,
+                        'hasAnimator': _hasAnimator,
+                      },
+                    );
                   },
                   text: 'Crear Sala',
                   borderColor: Colors.blue, // Color del borde animado
