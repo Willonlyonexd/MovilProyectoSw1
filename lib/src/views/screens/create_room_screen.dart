@@ -3,7 +3,7 @@ import 'package:lottie/lottie.dart';
 import '../widgets/BorderAnimationButton.dart'; // Importa el widget del botón animado
 
 class CreateRoomScreen extends StatefulWidget {
-  const CreateRoomScreen({Key? key}) : super(key: key);
+  const CreateRoomScreen({super.key});
 
   @override
   _CreateRoomScreenState createState() => _CreateRoomScreenState();

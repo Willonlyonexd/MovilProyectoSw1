@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/providers.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/user_service.dart';
 import '../widgets/spotify_button.dart'; // Asegúrate de importar el botón generalizado
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  HomeScreenState createState() => HomeScreenState();
+}
+
+class HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    getUserProfile(ref);
+  }
 
   @override
   Widget build(BuildContext context) {
-    String profileImageUrl = ''; // Ruta de imagen de usuario (cambiar según datos obtenidos)
+    final user = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: Colors.black, // Fondo oscuro
@@ -17,25 +31,28 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 40),
-
             // Avatar del usuario
             CircleAvatar(
               radius: 40,
-              backgroundImage: profileImageUrl.isNotEmpty
-                  ? NetworkImage(profileImageUrl)
-                  : null, // Imagen del usuario si está disponible
               backgroundColor: Colors.grey[800], // Fondo del avatar
-              child: profileImageUrl.isEmpty
-                  ? const Icon(Icons.person, color: Colors.white, size: 40)
-                  : null, // Icono predeterminado si no hay imagen
+              backgroundImage: user.images != null
+                  ? NetworkImage(user.images![0].url) // Imagen del usuario
+                  : null, // Si no hay imagen, se deja sin fondo
+              child: user.images == null
+                  ? const Icon(
+                      Icons.person, // Ícono predeterminado
+                      color: Colors.white,
+                      size: 40,
+                    )
+                  : null, // No mostrar icono si hay imagen
             ),
 
             const SizedBox(height: 10),
 
             // Texto de bienvenida
-            const Text(
-              'Hola, Usuario',
-              style: TextStyle(
+            Text(
+              'Hola, ${user.displayName}',
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -72,9 +89,9 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.grey[900],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Column(
+                  child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         'Daily Mix 1',
                         style: TextStyle(
@@ -98,9 +115,9 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.grey[900],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Column(
+                  child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         'Top Hits',
                         style: TextStyle(
@@ -140,7 +157,6 @@ class HomeScreen extends StatelessWidget {
               children: [
                 NeonButton(
                   onPressed: () {
-                    print('Crear Sala presionado');
                     Navigator.pushNamed(context, '/create_room');
                   },
                   text: 'Crear Sala',
@@ -149,7 +165,6 @@ class HomeScreen extends StatelessWidget {
                 ),
                 NeonButton(
                   onPressed: () {
-                    print('Unirse a Sala presionado');
                     Navigator.pushNamed(context, '/join_room');
                   },
                   text: 'Unirse a Sala',
