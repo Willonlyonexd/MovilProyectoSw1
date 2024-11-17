@@ -1,10 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // Importar el paquete Lottie
+
+import 'dart:async';
+import 'package:lottie/lottie.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/auth/auth_spotify.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/auth/get_access_token.dart';
+import 'package:uni_links/uni_links.dart';
+
 import '../widgets/spotify_button.dart';
 import '../widgets/animated_gradient_text.dart'; // Asegúrate de importar el widget de texto animado
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  StreamSubscription? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenToRedirects();
+  }
+
+  void _listenToRedirects() {
+    _sub = uriLinkStream.listen((Uri? uri) {
+      if (uri != null && uri.toString().startsWith('myapp://callback')) {
+        final String? code = uri.queryParameters['code'];
+        if (code != null) {
+          getAccessToken(code, context);
+        }
+      }
+    }, onError: (err) {});
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +63,9 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 10), // Separación entre los textos
 
             // Texto "FicctFy" con gradiente animado y fuente personalizada
-            AnimatedMovingGradientText(
+            const AnimatedMovingGradientText(
               text: 'FicctFy',
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 fontSize: 60, // Tamaño más grande
                 fontFamily: 'Starshines', // Fuente personalizada
                 fontWeight: FontWeight.normal,
@@ -42,7 +78,7 @@ class LoginScreen extends StatelessWidget {
                 Colors.orange,
                 Color.fromARGB(255, 162, 126, 7),
               ],
-              duration: const Duration(seconds: 5), // Duración del gradiente
+              duration: Duration(seconds: 5), // Duración del gradiente
             ),
             const SizedBox(height: 20), // Separación entre texto y animación
 
@@ -59,10 +95,9 @@ class LoginScreen extends StatelessWidget {
             // Botón de inicio de sesión
             NeonButton(
               onPressed: () {
-                Navigator.pushNamed(
-                    context, '/home'); // Navega a la pantalla principal
-
-                print('Iniciando sesión con Spotify...');
+                try {
+                  authenticateWithSpotify();
+                } catch (e) {}
               },
               text: 'Iniciar Sesión con Spotify',
               color: Colors.green,

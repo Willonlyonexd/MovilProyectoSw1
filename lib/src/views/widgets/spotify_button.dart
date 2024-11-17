@@ -11,8 +11,8 @@ class NeonButton extends StatefulWidget {
     required this.text,
     required this.color,
     required this.icon,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _NeonButtonState createState() => _NeonButtonState();
