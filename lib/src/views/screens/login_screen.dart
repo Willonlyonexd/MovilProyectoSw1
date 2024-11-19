@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'dart:async';
 import 'package:lottie/lottie.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/auth/auth_spotify.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/auth/get_access_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
