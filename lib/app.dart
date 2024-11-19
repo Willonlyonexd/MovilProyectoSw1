@@ -3,6 +3,8 @@ import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_scree
 import 'package:reproductor_colaborativo_sw1/src/views/screens/join_room_screen.dart';
 import 'src/views/screens/login_screen.dart';
 import 'src/views/screens/home_screen.dart'; // Importa la pantalla principal
+import 'src/views/screens/principal_room_screen.dart'; // Importa la pantalla principal
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
             const CreateRoomScreen(), // Pantalla de inicio de sesión.
         '/join_room': (context) =>
             const JoinRoomScreen(), // Pantalla principal.
+        '/principal_room': (context) =>
+            const PrincipalRoomScreen(), // Pantalla principal.   
       },
     );
   }

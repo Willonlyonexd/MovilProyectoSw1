@@ -11,27 +11,21 @@ class CreateRoomScreen extends StatefulWidget {
 
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final TextEditingController _roomNameController = TextEditingController();
-  String _selectedGenre = 'Rock'; // Género seleccionado por defecto
-  bool _hasAnimator = false; // Estado del checkbox
-
-  final List<String> _genres = [
-    'Rock',
-    'Pop',
-    'Hip-Hop',
-    'Electrónica',
-    'Clásica',
-    'Jazz',
-    'Reguetón',
-    'Indie',
-  ]; // Lista de géneros
+  final Map<String, bool> _genres = {
+    'Rock': false,
+    'Pop': false,
+    'Hip-Hop': false,
+    'Electrónica': false,
+    'Clásica': false,
+    'Jazz': false,
+    'Reguetón': false,
+    'Indie': false,
+  }; // Mapa para manejar los géneros y su selección
+  bool _hasAnimator = false; // Estado del checkbox para "¿Habrá animador?"
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Sala'),
-        backgroundColor: Colors.blue,
-      ),
       backgroundColor: Colors.black, // Fondo negro
       body: SingleChildScrollView(
         child: Padding(
@@ -39,7 +33,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              
+              const SizedBox(height: 50),
 
               // Campo de texto para el nombre de la sala
               const Text(
@@ -68,9 +63,9 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
               const SizedBox(height: 20),
 
-              // Dropdown para seleccionar género musical
+              // Título para géneros musicales
               const Text(
-                'Selecciona un género musical',
+                'Selecciona géneros musicales',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -78,26 +73,47 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              DropdownButton<String>(
-                value: _selectedGenre,
-                dropdownColor: Colors.grey[900],
-                style: const TextStyle(color: Colors.white),
-                items: _genres.map((genre) {
-                  return DropdownMenuItem<String>(
-                    value: genre,
-                    child: Text(genre),
+
+              // Chips de géneros musicales
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: _genres.keys.map((genre) {
+                  final isSelected = _genres[genre]!;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _genres[genre] = !isSelected;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.green : Colors.grey[800],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? Colors.green : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        genre,
+                        style: TextStyle(
+                          color: isSelected ? Colors.black : Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGenre = value!;
-                  });
-                },
               ),
 
               const SizedBox(height: 20),
 
-              // Checkbox para "Habrá animador"
+              // Checkbox para "¿Habrá animador?"
               Row(
                 children: [
                   Checkbox(
@@ -146,14 +162,32 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                       return;
                     }
 
+                    // Obtener géneros seleccionados
+                    final selectedGenres = _genres.entries
+                        .where((entry) => entry.value)
+                        .map((entry) => entry.key)
+                        .toList();
+
+                    // Verifica si se seleccionaron géneros
+                    if (selectedGenres.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Por favor, selecciona al menos un género.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
                     // Redirige a PrincipalRoomScreen con los datos de la sala
                     Navigator.pushNamed(
                       context,
                       '/principal_room',
                       arguments: {
                         'roomName': _roomNameController.text,
-                        'roomCode': 'ABCD', // Código de sala generado (puedes cambiarlo)
-                        'genre': _selectedGenre,
+                        'roomCode': 'ABCD', // Código de sala generado
+                        'genres': selectedGenres,
                         'hasAnimator': _hasAnimator,
                       },
                     );

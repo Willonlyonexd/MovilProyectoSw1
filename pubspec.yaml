@@ -40,6 +40,17 @@ flutter:
     - assets/Lottie/Animation-Home.json
     - assets/Lottie/Animation-CrearSala.json
     - assets/Lottie/Animation-joinsala.json
+    - assets/Lottie/Animation-RoomPrincipal.json
+    - assets/Lottie/Animation-Pulpo.json
+    - assets/Lottie/Animation-pulposhark.json
+    - assets/Lottie/Animation-connect.json
+    - assets/Lottie/Animation -exit.json
+    - assets/Lottie/Animation -exit2.json
+    - assets/Lottie/Animation -exit3.json
+    - assets/Images/bolivia.png
+
+
+
 
 
   fonts:

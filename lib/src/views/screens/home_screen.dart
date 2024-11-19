@@ -16,12 +16,19 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    getUserProfile(ref);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getUserProfile(ref); // Asegúrate de tener este método correctamente implementado.
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
+    final playlists = [
+      {'name': 'Mi Playlist 1', 'description': 'Mis canciones favoritas'},
+      {'name': 'Workout Mix', 'description': 'Energía para entrenar'},
+      {'name': 'Relax Vibes', 'description': 'Canciones para relajarme'},
+    ];
 
     return Scaffold(
       backgroundColor: Colors.black, // Fondo oscuro
@@ -31,33 +38,82 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 40),
-            // Avatar del usuario
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.grey[800], // Fondo del avatar
-              backgroundImage: user.images != null
-                  ? NetworkImage(user.images![0].url) // Imagen del usuario
-                  : null, // Si no hay imagen, se deja sin fondo
-              child: user.images == null
-                  ? const Icon(
-                      Icons.person, // Ícono predeterminado
-                      color: Colors.white,
-                      size: 40,
-                    )
-                  : null, // No mostrar icono si hay imagen
+
+            // Avatar del usuario y texto alineado a la derecha
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey[800], // Fondo del avatar
+                  backgroundImage: user.images != null && user.images!.isNotEmpty
+                      ? NetworkImage(user.images![0].url) // Imagen del usuario
+                      : null, // Si no hay imagen, se deja sin fondo
+                  child: user.images == null || user.images!.isEmpty
+                      ? const Icon(
+                          Icons.person, // Ícono predeterminado
+                          color: Colors.white,
+                          size: 40,
+                        )
+                      : null, // No mostrar icono si hay imagen
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          // Bandera o ícono del país
+                          if (user.country == 'BO') ...[
+                            Image.asset(
+                              'assets/Images/bolivia.png',
+                              width: 30,
+                              height: 20,
+                              fit: BoxFit.cover,
+                            ),
+                          ] else ...[
+                            const Icon(
+                              Icons.flag,
+                              color: Colors.white70,
+                              size: 20,
+                            ),
+                          ],
+                          const SizedBox(width: 5),
+                          Text(
+                            'País: ${user.country}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Hola, ${user.displayName.isNotEmpty ? user.displayName : 'Usuario'}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        user.email.isNotEmpty
+                            ? user.email
+                            : 'Correo no disponible', // Mostrar correo si existe
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
-            // Texto de bienvenida
-            Text(
-              'Hola, ${user.displayName}',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
             const Text(
               '¿Qué escucharemos hoy?',
               style: TextStyle(
@@ -65,11 +121,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Colors.white70,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-            // Título de recomendaciones
+            // Título de playlists
             const Text(
-              'Recomendaciones para ti',
+              'Tus Playlists',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -78,63 +134,46 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Contenedores de recomendaciones
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Daily Mix 1',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+            // Playlists dinámicas
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: playlists.length,
+                itemBuilder: (context, index) {
+                  final playlist = playlists[index];
+                  return Container(
+                    width: 150,
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            playlist['name']!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            playlist['description']!,
+                            style: const TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Rock y Alternativa',
-                        style: TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Top Hits',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Tus canciones favoritas',
-                        style: TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  );
+                },
+              ),
             ),
 
             const Spacer(),
