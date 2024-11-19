@@ -65,33 +65,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            // Bandera o ícono del país
-                            if (user.country == 'BO') ...[
-                              Image.asset(
-                                'assets/Images/bolivia.png',
-                                width: 30,
-                                height: 20,
-                                fit: BoxFit.cover,
-                              ),
-                            ] else ...[
-                              const Icon(
-                                Icons.flag,
-                                color: Colors.white70,
-                                size: 20,
-                              ),
-                            ],
-                            const SizedBox(width: 5),
-                            Text(
-                              'País: ${user.country}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
+                        
                         const SizedBox(height: 5),
                         Text(
                           'Hola, ${user.displayName.isNotEmpty ? user.displayName : 'Usuario'}',
@@ -99,15 +73,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          user.email.isNotEmpty
-                              ? user.email
-                              : 'Correo no disponible', // Mostrar correo si existe
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white70,
                           ),
                         ),
                       ],
