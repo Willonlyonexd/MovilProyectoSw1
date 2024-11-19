@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   prefs.setString('token', accessToken);
-                  Navigator.pushNamed(context, '/prueba');
+                  Navigator.pushNamed(context, '/home');
                   print(accessToken);
                 } catch (e) {}
               },
