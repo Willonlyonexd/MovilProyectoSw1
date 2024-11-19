@@ -56,174 +56,9 @@ class PrincipalRoomScreen extends StatelessWidget {
     };
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center, // Centrado horizontal
-              children: [
-                const SizedBox(height: 30),
-
-                // Sección superior: Nombre de la sala y código
-                Column(
-                  children: const [
-                    Text(
-                      'Nombre de Sala',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Código: XXXX',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Buscador de canciones
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Buscar canciones:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Ingresa el nombre de la canción',
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              filled: true,
-                              fillColor: Colors.grey[900],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                            onSubmitted: handleSongSearch,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.search, color: Colors.green),
-                          onPressed: () {
-                            // Aquí se procesará la búsqueda
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Parte media: Votación de canciones
-                Column(
-                  children: [
-                    const Text(
-                      'Votación de canciones:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 370, // Altura máxima para mostrar 5 canciones
-                      child: ListView.builder(
-                        itemCount: songs.length,
-                        itemBuilder: (context, index) {
-                          final song = songs[index];
-                          return ListTile(
-                            leading: Image.network(
-                              song['imageUrl'],
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              song['name'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Text(
-                              song['artist'],
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.thumb_up,
-                                  color: Colors.green),
-                              onPressed: () {
-                                print('Voto positivo para ${song['name']}');
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-
-                // Nueva columna: Reproduciendo
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reproduciendo:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    PlayerControls(currentSong: currentSong),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // Indicador para el sidebar
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () {
-                Scaffold.of(context).openEndDrawer();
-              },
-              child: Container(
-                width: 15, // Ancho del indicador
-                height: 100, // Altura del indicador
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Ícono de salida con Lottie en la esquina superior derecha
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: [
           Positioned(
             top: 15,
             right: 10,
@@ -240,6 +75,179 @@ class PrincipalRoomScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 0, left: 16, right: 16, bottom: 16),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // Centrado horizontal
+                  children: [
+                    // Sección superior: Nombre de la sala y código
+                    const Column(
+                      children: [
+                        Text(
+                          'Nombre de Sala',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Código: XXXX',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Buscador de canciones
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Buscar canciones:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Ingresa el nombre de la canción',
+                                  hintStyle:
+                                      const TextStyle(color: Colors.white54),
+                                  filled: true,
+                                  fillColor: Colors.grey[900],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                style: const TextStyle(color: Colors.white),
+                                onSubmitted: handleSongSearch,
+                              ),
+                            ),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.search, color: Colors.green),
+                              onPressed: () {
+                                // Aquí se procesará la búsqueda
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Parte media: Votación de canciones
+                    Column(
+                      children: [
+                        const Text(
+                          'Votación de canciones:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 340, // Altura máxima para mostrar 5 canciones
+                          child: ListView.builder(
+                            itemCount: songs.length,
+                            itemBuilder: (context, index) {
+                              final song = songs[index];
+                              return ListTile(
+                                leading: Image.network(
+                                  song['imageUrl'],
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                                title: Text(
+                                  song['name'],
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                subtitle: Text(
+                                  song['artist'],
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.thumb_up,
+                                      color: Colors.green),
+                                  onPressed: () {
+                                    print('Voto positivo para ${song['name']}');
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+
+                    // Nueva columna: Reproduciendo
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Reproduciendo:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        PlayerControls(currentSong: currentSong),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Indicador para el sidebar
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+                child: Container(
+                  width: 15, // Ancho del indicador
+                  height: 100, // Altura del indicador
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       endDrawer: Drawer(
         backgroundColor: Colors.black, // Fondo negro del Drawer
