@@ -39,7 +39,8 @@ class VoteSection extends StatelessWidget {
               )
             : ListView.builder(
                 shrinkWrap: true, // Evita errores de scroll
-                physics: const NeverScrollableScrollPhysics(), // Scroll manejado por la pantalla principal
+                physics:
+                    const NeverScrollableScrollPhysics(), // Scroll manejado por la pantalla principal
                 itemCount: songs.length,
                 itemBuilder: (context, index) {
                   final song = songs[index];
@@ -48,14 +49,17 @@ class VoteSection extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
                       leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8), // Bordes redondeados para la imagen
+                        borderRadius: BorderRadius.circular(
+                            8), // Bordes redondeados para la imagen
                         child: Image.network(
-                          song['imageUrl'] ?? 'https://via.placeholder.com/50', // Imagen de la canción
+                          song['imageUrl'] ??
+                              'https://via.placeholder.com/50', // Imagen de la canción
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.music_note, color: Colors.white70),
+                              const Icon(Icons.music_note,
+                                  color: Colors.white70),
                         ),
                       ),
                       title: Text(
