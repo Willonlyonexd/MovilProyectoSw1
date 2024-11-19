@@ -3,7 +3,8 @@ import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_scree
 import 'package:reproductor_colaborativo_sw1/src/views/screens/join_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/home_screen.dart'; // Pantalla principal
-import 'package:reproductor_colaborativo_sw1/src/views/screens/principal_room_screen.dart'; // Sala principal
+import 'package:reproductor_colaborativo_sw1/src/views/screens/principal_room_screen.dart';
+import 'package:reproductor_colaborativo_sw1/src/views/screens/pruebas.dart'; // Sala principal
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -22,8 +23,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(), // Pantalla principal.
         '/create_room': (context) => const CreateRoomScreen(), // Crear sala.
         '/join_room': (context) => const JoinRoomScreen(), // Unirse a una sala.
-        '/principal_room': (context) =>
-            const PrincipalRoomScreen(), // Unirse a una sala.
+        '/principal_room': (context) => const PrincipalRoomScreen(),
+        '/prueba': (context) => const SearchMusicPage(),
       },
     );
   }

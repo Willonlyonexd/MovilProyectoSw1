@@ -4,8 +4,9 @@ import 'dart:async';
 import 'package:lottie/lottie.dart';
 import 'package:reproductor_colaborativo_sw1/src/services/auth/auth_spotify.dart';
 import 'package:reproductor_colaborativo_sw1/src/services/auth/get_access_token.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
-
+import 'package:spotify_sdk/spotify_sdk.dart';
 import '../widgets/spotify_button.dart';
 import '../widgets/animated_gradient_text.dart'; // Asegúrate de importar el widget de texto animado
 
@@ -28,10 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
   void _listenToRedirects() {
     _sub = uriLinkStream.listen((Uri? uri) {
       if (uri != null && uri.toString().startsWith('myapp://callback')) {
-        final String? code = uri.queryParameters['code'];
-        if (code != null) {
-          getAccessToken(code, context);
-        }
+        // final String? code = uri.queryParameters['code'];
+        // if (code != null) {
+        //   getAccessToken(code, context);
+        // }
       }
     }, onError: (err) {});
   }
@@ -94,9 +95,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Botón de inicio de sesión
             NeonButton(
-              onPressed: () {
+              onPressed: () async {
                 try {
-                  authenticateWithSpotify();
+                  await SpotifySdk.connectToSpotifyRemote(
+                      clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
+                      redirectUrl: "myapp://callback");
+
+                  SpotifySdk.subscribePlayerState();
+                  SpotifySdk.subscribePlayerContext();
+                  final accessToken = await SpotifySdk.getAccessToken(
+                      clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
+                      redirectUrl: "myapp://callback",
+                      scope:
+                          "app-remote-control,user-modify-playback-state,playlist-read-private");
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.setString('token', accessToken);
+                  Navigator.pushNamed(context, '/prueba');
+                  print(accessToken);
                 } catch (e) {}
               },
               text: 'Iniciar Sesión con Spotify',
