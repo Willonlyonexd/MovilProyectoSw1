@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reproductor_colaborativo_sw1/src/models/music.dart';
 import 'package:reproductor_colaborativo_sw1/src/models/user.dart';
 
 final userProvider = StateProvider<User>((ref) {
@@ -11,4 +12,12 @@ final userProvider = StateProvider<User>((ref) {
       images: null,
       type: '',
       uri: '');
+});
+
+final musicsProvider = StateProvider<List<Music>>((ref) {
+  return [];
+});
+
+final usersProvider = StateProvider<List<User>>((ref) {
+  return [];
 });

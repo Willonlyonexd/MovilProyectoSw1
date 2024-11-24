@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/socket_services.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/join_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
@@ -10,20 +12,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Reproductor Colaborativo',
-      theme: ThemeData(
-        primarySwatch: Colors.green, // Cambia el tema según tus necesidades.
-      ),
-      initialRoute: '/', // Ruta inicial.
-      routes: {
-        '/': (context) => const LoginScreen(), // Pantalla de inicio de sesión.
-        '/home': (context) => const HomeScreen(), // Pantalla principal.
-        '/create_room': (context) => const CreateRoomScreen(), // Crear sala.
-        '/join_room': (context) => const JoinRoomScreen(), // Unirse a una sala.
-        '/principal_room': (context) => const PrincipalRoomScreen(),
-      },
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+              create: (BuildContext context) => SocketProvider())
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Reproductor Colaborativo',
+          theme: ThemeData(
+            primarySwatch:
+                Colors.green, // Cambia el tema según tus necesidades.
+          ),
+          initialRoute: '/', // Ruta inicial.
+          routes: {
+            '/': (context) =>
+                const LoginScreen(), // Pantalla de inicio de sesión.
+            '/home': (context) => const HomeScreen(), // Pantalla principal.
+            '/create_room': (context) =>
+                const CreateRoomScreen(), // Crear sala.
+            '/join_room': (context) =>
+                const JoinRoomScreen(), // Unirse a una sala.
+            '/principal_room': (context) => const PrincipalRoomScreen(),
+          },
+        ));
   }
 }
