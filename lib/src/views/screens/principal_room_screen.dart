@@ -1,309 +1,279 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
-import '../widgets/user_list.dart'; // Widget para lista de usuarios
-import '../widgets/player_controls.dart'; // Widget para controles del reproductor
+import 'package:reproductor_colaborativo_sw1/src/models/music.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/providers.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/socket_services.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/spotify_services.dart';
+import 'package:spotify_sdk/models/player_state.dart';
+import 'package:spotify_sdk/spotify_sdk.dart';
+import '../widgets/user_list.dart';
 
-class PrincipalRoomScreen extends StatelessWidget {
-  const PrincipalRoomScreen({Key? key}) : super(key: key);
+class PrincipalRoomScreen extends ConsumerStatefulWidget {
+  const PrincipalRoomScreen({super.key});
 
-  void handleSongSearch(String query) {
-    print('Buscando canciones para: $query');
-    // Aquí agregarás la lógica para consumir la API de Spotify
+  @override
+  PrincipalRoomScreenState createState() => PrincipalRoomScreenState();
+}
+
+class PrincipalRoomScreenState extends ConsumerState<PrincipalRoomScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  String? _currentTrackId;
+  List<Music> _searchResults = [];
+  bool _isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    _subscribeToPlayerState();
+  }
+
+  void _subscribeToPlayerState() {
+    _playerStateSubscription?.cancel();
+    _playerStateSubscription =
+        SpotifySdk.subscribePlayerState().listen((PlayerState playerState) {
+      if (playerState.track?.uri != null) {
+        final newTrackId = playerState.track!.uri;
+        if (newTrackId != _currentTrackId) {
+          _currentTrackId = newTrackId;
+          print(
+              'Nueva canción reproducida: ${playerState.track!.name} - ${playerState.track!.artist.name}');
+        }
+      }
+    }, onError: (err) {
+      print('Error al suscribirse al estado del reproductor: $err');
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _playerStateSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _searchMusic(String query) async {
+    if (query.isEmpty) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      List<Music> results = await searchSpotify(query, ref);
+      setState(() {
+        _searchResults = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Datos simulados para la votación
-    final List<Map<String, dynamic>> songs = [
-      {
-        'name': 'Sound for pass sw1',
-        'artist': 'Martinez',
-        'imageUrl':
-            'https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228',
-      },
-      {
-        'name': 'Pensando en ti Julio',
-        'artist': 'Korinor Chile',
-        'imageUrl':
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAqOBLNG4vuAfTXdNKjtriXqR-PJW62M2VA&s',
-      },
-      {
-        'name': 'Por Interner Ft Wilder Choque',
-        'artist': 'Wilder Choque',
-        'imageUrl':
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYBPe8hRcxKH9IBD0v9EurywnEF94PwOK0Qw&s',
-      },
-      {
-        'name': 'Robando en la Gabi',
-        'artist': 'Will & Rafa',
-        'imageUrl':
-            'https://i.scdn.co/image/ab67616d0000b27331442844d01cb0a841796759',
-      },
-      {
-        'name': 'Hoy me puse linda para detonarte',
-        'artist': 'Evo Morales',
-        'imageUrl':
-            'https://i.pinimg.com/originals/87/97/1f/87971fc020e3a28e5b208685dc108b99.jpg',
-      },
-    ];
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
-    // Canción en reproducción simulada
-    final Map<String, dynamic> currentSong = {
-      'name': 'Rafa y los Nene Malo',
-      'artist': 'Rafael Salvatierra',
-      'imageUrl':
-          'https://lastfm.freetls.fastly.net/i/u/ar0/fdfb5def5dc5484aaa83fb2bbf0d4242.jpg',
-    };
-
+    // Extraer los valores
+    final String roomName = args['roomName'];
+    final String roomCode = args['roomCode'];
+    final List<String> genres = args['genres'];
+    final bool hasAnimator = args['hasAnimator'];
+    SocketProvider socketProvider = args['socketProvider'];
+    final musics = ref.watch(musicsProvider);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/home');
+            },
+            child: Lottie.asset(
+              'assets/Lottie/Animation -exit3.json', // Ruta de la animación Lottie
+              width: 40,
+              height: 40,
+            ),
+          ),
+        ],
+        title: Text(
+          roomName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+      ),
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(8),
+          color: Colors.black,
+          child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center, // Centrado horizontal
               children: [
-                const SizedBox(height: 30),
-
-                // Sección superior: Nombre de la sala y código
-                Column(
-                  children: const [
-                    Text(
-                      'Nombre de Sala',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+                Container(
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: TextField(
+                    cursorColor: Colors.white,
+                    style: const TextStyle(color: Colors.white),
+                    controller: _searchController,
+                    onChanged: _searchMusic,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search),
+                      labelStyle: TextStyle(color: Colors.white),
+                      labelText: 'Escribe una canción o artista...',
+                      border: OutlineInputBorder(),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Código: XXXX',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-
-                // Buscador de canciones
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Buscar canciones:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Ingresa el nombre de la canción',
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              filled: true,
-                              fillColor: Colors.grey[900],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                            onSubmitted: handleSongSearch,
-                          ),
+                if (_isLoading) const CircularProgressIndicator(),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.green.shade700)),
+                  height: 257,
+                  child: ListView.builder(
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      final song = _searchResults[index];
+                      return _listTileMusic(song);
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                const Text(
+                  'Lista de músicas',
+                  style: TextStyle(color: Colors.white, fontSize: 25),
+                ),
+                SizedBox(
+                  height: 370, // Altura máxima para mostrar 5 canciones
+                  child: ListView.builder(
+                    itemCount: musics.length,
+                    itemBuilder: (context, index) {
+                      Music song = musics[index];
+                      return ListTile(
+                        leading: Image.network(
+                          song.album.images[1].url,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.search, color: Colors.green),
-                          onPressed: () {
-                            // Aquí se procesará la búsqueda
+                        title: Text(
+                          song.name,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Text(
+                          song.artists.first.name,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.thumb_up, color: Colors.green),
+                          onPressed: () async {
+                            await SpotifySdk.queue(spotifyUri: song.uri);
+                            print(song.name);
                           },
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Parte media: Votación de canciones
-                Column(
-                  children: [
-                    const Text(
-                      'Votación de canciones:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 370, // Altura máxima para mostrar 5 canciones
-                      child: ListView.builder(
-                        itemCount: songs.length,
-                        itemBuilder: (context, index) {
-                          final song = songs[index];
-                          return ListTile(
-                            leading: Image.network(
-                              song['imageUrl'],
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              song['name'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Text(
-                              song['artist'],
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.thumb_up,
-                                  color: Colors.green),
-                              onPressed: () {
-                                print('Voto positivo para ${song['name']}');
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-
-                // Nueva columna: Reproduciendo
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reproduciendo:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    PlayerControls(currentSong: currentSong),
-                  ],
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
           ),
-
-          // Indicador para el sidebar
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () {
-                Scaffold.of(context).openEndDrawer();
-              },
-              child: Container(
-                width: 15, // Ancho del indicador
-                height: 100, // Altura del indicador
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Ícono de salida con Lottie en la esquina superior derecha
-          Positioned(
-            top: 15,
-            right: 10,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, '/home');
-                print('Regresando a la pantalla principal...');
-              },
-              child: Lottie.asset(
-                'assets/Lottie/Animation -exit3.json', // Ruta de la animación Lottie
-                width: 40,
-                height: 40,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
       endDrawer: Drawer(
         backgroundColor: Colors.black, // Fondo negro del Drawer
-        child: Column(
-          children: [
-            // Nueva cabecera con el Lottie animationconnect
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Lottie.asset(
-                    'assets/Lottie/Animation-connect.json', // Nueva animación Lottie
-                    width: 50,
-                    height: 50,
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Conectados',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Nueva cabecera con el Lottie animationconnect
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Lottie.asset(
+                      'assets/Lottie/Animation-connect.json', // Nueva animación Lottie
+                      width: 50,
+                      height: 50,
                     ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Conectados',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Lista de usuarios conectados
+              const Expanded(
+                child: UserList(), // Muestra la lista de usuarios
+              ),
+
+              // Animación Lottie al final
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Lottie.asset(
+                    'assets/Lottie/Animation-pulposhark.json', // Animación del pulposhark
+                    width: 350,
+                    height: 350,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Lista de usuarios conectados
-            const Expanded(
-              child: UserList(), // Muestra la lista de usuarios
-            ),
-
-            // Animación Lottie al final
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: Lottie.asset(
-                  'assets/Lottie/Animation-pulposhark.json', // Animación del pulposhark
-                  width: 350,
-                  height: 350,
                 ),
               ),
-            ),
 
-            // Frase debajo del Lottie
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                '¡Comparte la diversión o invita a otros a unirse a esta sala!',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white70,
+              // Frase debajo del Lottie
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  '¡Comparte la diversión o invita a otros a unirse a esta sala!',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 10),
-          ],
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  ListTile _listTileMusic(Music song) {
+    return ListTile(
+        title: Text(
+          song.name,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(
+          song.artists.first.name,
+          style: TextStyle(color: Colors.grey.shade300),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Image.network(song.album.images.first.url),
+        onTap: () async {
+          await SpotifySdk.play(spotifyUri: song.uri);
+        });
   }
 }
