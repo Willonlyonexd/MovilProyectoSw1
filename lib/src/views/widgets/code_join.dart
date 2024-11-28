@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CodeInputField extends StatefulWidget {
   final int length; // Longitud del código
-  final void Function(String) onCompleted; // Callback cuando el usuario complete el código
+  final void Function(String)
+      onCompleted; // Callback cuando el usuario complete el código
 
   const CodeInputField({
     Key? key,
@@ -73,7 +74,7 @@ class _CodeInputFieldState extends State<CodeInputField> {
               controller: _controllers[index],
               focusNode: _focusNodes[index],
               maxLength: 1,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.text,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 24,

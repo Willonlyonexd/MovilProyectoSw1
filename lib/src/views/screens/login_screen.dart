@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'dart:async';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   StreamSubscription? _sub;
+  bool _isLoading = false; // Variable para controlar el estado de carga
 
   @override
   void initState() {
@@ -91,32 +91,47 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(
                 height: 40), // Separación entre la animación y el botón
 
-            // Botón de inicio de sesión
-            NeonButton(
-              onPressed: () async {
-                try {
-                  await SpotifySdk.connectToSpotifyRemote(
-                      clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
-                      redirectUrl: "myapp://callback");
+            // Si estamos cargando, mostramos el indicador de carga
+            if (_isLoading)
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              )
+            else
+              // Botón de inicio de sesión
+              NeonButton(
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true; // Activamos el estado de carga
+                  });
+                  try {
+                    await SpotifySdk.connectToSpotifyRemote(
+                        clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
+                        redirectUrl: "myapp://callback");
 
-                  SpotifySdk.subscribePlayerState();
-                  SpotifySdk.subscribePlayerContext();
-                  final accessToken = await SpotifySdk.getAccessToken(
-                      clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
-                      redirectUrl: "myapp://callback",
-                      scope:
-                          "app-remote-control,user-modify-playback-state,playlist-read-private");
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.setString('token', accessToken);
-                  Navigator.pushNamed(context, '/home');
-                  print(accessToken);
-                } catch (e) {}
-              },
-              text: 'Iniciar Sesión con Spotify',
-              color: Colors.green,
-              icon: Icons.music_note,
-            ),
+                    SpotifySdk.subscribePlayerState();
+                    SpotifySdk.subscribePlayerContext();
+                    final accessToken = await SpotifySdk.getAccessToken(
+                        clientId: "1d29336f6a00486e9c0d5ac46ba67c78",
+                        redirectUrl: "myapp://callback",
+                        scope:
+                            "app-remote-control,user-modify-playback-state,playlist-read-private,user-library-read");
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setString('token', accessToken);
+                    Navigator.pushNamed(context, '/home');
+                    print(accessToken);
+                  } catch (e) {
+                    print("Error: $e");
+                  } finally {
+                    setState(() {
+                      _isLoading = false; // Desactivamos el estado de carga
+                    });
+                  }
+                },
+                text: 'Iniciar Sesión con Spotify',
+                color: Colors.green,
+                icon: Icons.music_note,
+              ),
           ],
         ),
       ),

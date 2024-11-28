@@ -21,3 +21,7 @@ final musicsProvider = StateProvider<List<Music>>((ref) {
 final usersProvider = StateProvider<List<User>>((ref) {
   return [];
 });
+
+final roomCodeProvider = StateProvider<String>((ref) {
+  return '';
+});

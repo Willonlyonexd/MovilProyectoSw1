@@ -13,9 +13,9 @@ Future<List<Music>> searchSpotify(String query, WidgetRef ref) async {
     throw Exception('Token no encontrado. Por favor, inicia sesión.');
   }
 
+  // final String url ='https://api.spotify.com/v1/search?q=$query&type=track&limit=10';
   final String url =
-      'https://api.spotify.com/v1/search?q=$query&type=track&limit=10';
-
+      'https://api.spotify.com/v1/search?q="$query"&type=track,album,artist&limit=5';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -81,10 +81,12 @@ Future<void> refreshSpotifyToken() async {
   }
 }
 
-Future<List<Map<String, dynamic>>> getRecommendations(String trackId) async {
+// 54zcJnb3tp9c5OVKREZ1Is
+
+Future<Music> getRecommendation(String trackId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final String url =
-      'https://api.spotify.com/v1/recommendations?seed_tracks=$trackId&limit=10';
+      'https://api.spotify.com/v1/recommendations?seed_tracks=$trackId&limit=1'; // Limitar a 1 recomendación
   String? token = prefs.getString('token');
   final response = await http.get(
     Uri.parse(url),
@@ -96,17 +98,11 @@ Future<List<Map<String, dynamic>>> getRecommendations(String trackId) async {
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
-    final tracks = data['tracks'];
-    // Mapeamos la lista de canciones recomendadas
-    return tracks.map<Map<String, dynamic>>((track) {
-      return {
-        'name': track['name'],
-        'artist': track['artists'][0]['name'],
-        'uri': track['uri'],
-        'image': track['album']['images'][0]['url'], // Imagen del álbum
-      };
-    }).toList();
+    final track = data['tracks'][0]; // Tomamos solo el primer track
+
+    // Usamos fromJson para convertir el track a un objeto de tipo Music
+    return Music.fromJson(track);
   } else {
-    throw Exception('Error al obtener recomendaciones: ${response.body}');
+    throw Exception('Error al obtener la recomendación: ${response.body}');
   }
 }

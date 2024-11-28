@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:reproductor_colaborativo_sw1/src/models/music.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/providers.dart';
+import 'package:reproductor_colaborativo_sw1/src/services/recomendacion_services.dart';
 import 'package:reproductor_colaborativo_sw1/src/services/socket_services.dart';
 import 'package:reproductor_colaborativo_sw1/src/services/spotify_services.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
@@ -18,24 +20,46 @@ class CreateRoomScreen extends ConsumerStatefulWidget {
 class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
   final TextEditingController _roomNameController = TextEditingController();
   final Map<String, bool> _genres = {
-    'Rock': false,
-    'Pop': false,
-    'Hip-Hop': false,
-    'Electrónica': false,
-    'Clásica': false,
-    'Jazz': false,
-    'Reguetón': false,
-    'Indie': false,
+    'cumbia': false,
+    'reggaeton': false,
+    'salsa': false,
+    'electronic': false,
+    'latin': false,
+    'bachata': false,
+    'trap': false,
+    'hip-hop': false,
+    'phonk': false,
+    'pop': false,
+    'rock': false,
+    'edm': false,
   }; // Mapa para manejar los géneros y su selección
   bool _hasAnimator = false; // Estado del checkbox para "¿Habrá animador?"
-  String roomCode = '';
   final TextEditingController _searchController = TextEditingController();
   List<Music> _searchResults = [];
   bool _isLoading = false;
-
+  bool _hasEmittedCreateRoom = false;
+  late SocketProvider socketProvider;
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    socketProvider = provider.Provider.of<SocketProvider>(context);
+    final user = ref.watch(userProvider);
+
+    // Emitir 'crear-sala' solo una vez
+    if (!_hasEmittedCreateRoom) {
+      socketProvider.emit('crear-sala', {'userDetail': user.toJson()});
+      _hasEmittedCreateRoom = true; // Asegúrate de que no se emita nuevamente
+    }
+
+    // Escuchar el evento 'nombre-de-sala'
+    socketProvider.on('nombre-de-sala', (payload) {
+      ref.read(roomCodeProvider.notifier).update((state) => payload.toString());
+    });
   }
 
   void _searchMusic(String query) async {
@@ -58,7 +82,6 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final socketProvider = provider.Provider.of<SocketProvider>(context);
     return Scaffold(
       backgroundColor: Colors.black, // Fondo negro
       body: SingleChildScrollView(
@@ -152,7 +175,7 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
               ),
 
               const Text(
-                'O busca una canción',
+                'Busca una canción para iniciar',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -189,7 +212,7 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) {
                     final song = _searchResults[index];
-                    return _listTileMusic(song);
+                    return _listTileMusic(song, socketProvider);
                   },
                 ),
               ),
@@ -249,7 +272,14 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
                         .map((entry) => entry.key)
                         .toList();
 
-                    // Verifica si se seleccionaron géneros
+                    String roomCode = ref.watch(roomCodeProvider);
+                    for (var genero in selectedGenres) {
+                      List<Music> musics = await getMusic(genero);
+                      for (var music in musics) {
+                        socketProvider.addMusicToReserved(roomCode, music);
+                      }
+                    }
+
                     if (selectedGenres.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -260,24 +290,29 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
                       );
                       return;
                     }
-                    await socketProvider.emit(
-                        'crear-sala', {'musicLits': [], 'userDetails': []});
 
-                    await socketProvider.on('nombre-de-sala', (payload) {
-                      setState(() {
-                        roomCode = payload;
-                      });
-                    });
+                    while (socketProvider.musicList.length != 3) {
+                      if (socketProvider.musicList.isEmpty) {
+                        Music music = socketProvider.musicReserved.first;
+                        socketProvider.addMusicToList(roomCode, music);
+                        socketProvider.removeFirstFromReserved(roomCode);
+                      } else {
+                        Music music = socketProvider.musicReserved.first;
+                        socketProvider.addMusicToList(roomCode, music);
+                        SpotifySdk.queue(spotifyUri: music.uri);
+                        socketProvider.removeFirstFromReserved(roomCode);
+                      }
+                    }
+                    SpotifySdk.play(
+                        spotifyUri: socketProvider.musicList[0].uri);
                     // Redirige a PrincipalRoomScreen con los datos de la sala
                     Navigator.pushNamed(
                       context,
                       '/principal_room',
                       arguments: {
                         'roomName': _roomNameController.text,
-                        'roomCode': roomCode,
                         'genres': selectedGenres,
                         'hasAnimator': _hasAnimator,
-                        'socketProvider': socketProvider
                       },
                     );
                   },
@@ -297,7 +332,7 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
     );
   }
 
-  ListTile _listTileMusic(Music song) {
+  ListTile _listTileMusic(Music song, SocketProvider socketProvider) {
     return ListTile(
         title: Text(
           song.name,
@@ -314,7 +349,37 @@ class CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
         ),
         trailing: Image.network(song.album.images.first.url),
         onTap: () async {
-          await SpotifySdk.play(spotifyUri: song.uri);
+          final roomCode = ref.watch(roomCodeProvider);
+          if (socketProvider.musicList.isEmpty) {
+            socketProvider.addMusicToList(roomCode, song);
+          } else if (socketProvider.musicList.length != 3 &&
+              socketProvider.musicList.isNotEmpty) {
+            socketProvider.addMusicToList(roomCode, song);
+            SpotifySdk.queue(spotifyUri: song.uri);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Center(
+                  child: Text(
+                    'Música agregada',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                duration: Duration(seconds: 1),
+                closeIconColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Center(
+                  child: Text(
+                    'Máximo de tres músicas para empezar',
+                  ),
+                ),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
         });
   }
 }
