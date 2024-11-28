@@ -9,7 +9,7 @@ enum ServerStatus { Online, Offline, Connecting }
 class SocketProvider with ChangeNotifier {
   ServerStatus _serverStatus = ServerStatus.Connecting;
 
-  final IO.Socket _socket = IO.io('http://192.168.0.11:3001/', {
+  final IO.Socket _socket = IO.io('http://192.168.0.13:3001/', {
     'transports': ['websocket'],
     'autoConnect': true
   });

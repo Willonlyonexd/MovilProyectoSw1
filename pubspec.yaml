@@ -24,6 +24,8 @@ dependencies:
   socket_io_client: ^2.0.3+1
   provider: ^6.1.2
   palette_generator: ^0.3.0
+  smooth_page_indicator: ^1.0.0
+
 
 
 
@@ -51,7 +53,13 @@ flutter:
     - assets/Lottie/Animation -exit.json
     - assets/Lottie/Animation -exit2.json
     - assets/Lottie/Animation -exit3.json
+    - assets/Lottie/ia.json
+    - assets/Lottie/22.json
+    - assets/Lottie/23.json
     - assets/Images/bolivia.png
+    - assets/Images/onboarding1.png
+    - assets/Images/onboarding2.png
+    - assets/Images/onboarding3.png
 
 
 
