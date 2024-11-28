@@ -29,17 +29,13 @@ class MyApp extends StatelessWidget {
           initialRoute: '/', // Ruta inicial.
           routes: {
             '/': (context) =>
-                 OnboardingScreen(), // Pantalla de inicio de sesión.
+                OnboardingScreen(), // Pantalla de inicio de sesión.
             '/login': (context) => const LoginScreen(), // Pantalla principal
             '/home': (context) => const HomeScreen(), // Pantalla principal.
             '/create_room': (context) =>
                 const CreateRoomScreen(), // Crear sala.
             '/join_room': (context) =>
                 const JoinRoomScreen(), // Unirse a una sala.
-            '/': (context) => const LoginScreen(),
-            '/home': (context) => const HomeScreen(),
-            '/create_room': (context) => const CreateRoomScreen(),
-            '/join_room': (context) => const JoinRoomScreen(),
             '/principal_room': (context) => const PrincipalRoomScreen(),
             '/client': (context) => const ClientScreen(),
           },
