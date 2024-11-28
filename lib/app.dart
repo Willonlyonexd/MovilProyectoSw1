@@ -6,6 +6,7 @@ import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_scree
 import 'package:reproductor_colaborativo_sw1/src/views/screens/join_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/home_screen.dart'; // Pantalla principal
+import 'package:reproductor_colaborativo_sw1/src/views/screens/onboarding.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/principal_room_screen.dart';
 
 class MyApp extends StatelessWidget {
@@ -27,6 +28,14 @@ class MyApp extends StatelessWidget {
           ),
           initialRoute: '/', // Ruta inicial.
           routes: {
+            '/': (context) =>
+                 OnboardingScreen(), // Pantalla de inicio de sesión.
+            '/login': (context) => const LoginScreen(), // Pantalla principal
+            '/home': (context) => const HomeScreen(), // Pantalla principal.
+            '/create_room': (context) =>
+                const CreateRoomScreen(), // Crear sala.
+            '/join_room': (context) =>
+                const JoinRoomScreen(), // Unirse a una sala.
             '/': (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
             '/create_room': (context) => const CreateRoomScreen(),
