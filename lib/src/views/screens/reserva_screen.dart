@@ -250,7 +250,8 @@ class _ReservaScreenState extends ConsumerState<ReservaScreen> {
               
               final List<String> horaParts = horaReservaStr.split(':');
               if (horaParts.length >= 2) {
-                final horaReservaMinutos = int.tryParse(horaParts[0]) ?? 0 * 60 + (int.tryParse(horaParts[1]) ?? 0);
+                // CORRECCIÓN: Arreglado el problema de precedencia de operadores
+                final horaReservaMinutos = (int.tryParse(horaParts[0]) ?? 0) * 60 + (int.tryParse(horaParts[1]) ?? 0);
                 debugPrint('🔍 Comparando reserva en mesa $mesaId: hora reserva=$horaReservaMinutos vs hora seleccionada=$horaSeleccionadaMinutos');
                 
                 // La mesa está ocupada si la hora solicitada está dentro de +/- 2 horas
@@ -758,7 +759,8 @@ class _ReservaScreenState extends ConsumerState<ReservaScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Mesa ${mesa['numero']}',
+                                // CORRECCIÓN: Mejorar visualización cuando numero es 0
+                                mesa['numero'] == 0 ? 'Mesa ${mesa['mesa_id']}' : 'Mesa ${mesa['numero']}',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
