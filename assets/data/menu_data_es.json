@@ -1,0 +1,387 @@
+[
+  {
+    "id": 1,
+    "nombre": "Entradas Peruanas",
+    "descripcion": "Entradas y aperitivos tradicionales",
+    "productos": [
+      {
+        "producto_id": 1,
+        "descripcion": "Papas con salsa de ají amarillo y queso",
+        "nombre": "Papa a la Huancaína",
+        "nombre_corto": "Papa Huancaína",
+        "precio": 28,
+        "categoria_id": 1,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto1.png"
+      },
+      {
+        "producto_id": 2,
+        "descripcion": "Pastel de papa amarilla relleno de pollo",
+        "nombre": "Causa Limeña",
+        "nombre_corto": "Causa",
+        "precio": 25,
+        "categoria_id": 1,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto2.png"
+      },
+      {
+        "producto_id": 3,
+        "descripcion": "Tequeños rellenos de ají de gallina",
+        "nombre": "Tequeños de Ají de Gallina",
+        "nombre_corto": "Tequeños",
+        "precio": 22,
+        "categoria_id": 1,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto3.png"
+      },
+      {
+        "producto_id": 4,
+        "descripcion": "Masa de maíz rellena de carne",
+        "nombre": "Tamales Peruanos",
+        "nombre_corto": "Tamales",
+        "precio": 21,
+        "categoria_id": 1,
+        "tenant_id": 1,
+        "unidad_medida_id": 5,
+        "imagen": "assets/images/producto4.png"
+      },
+      {
+        "producto_id": 5,
+        "descripcion": "Papas con salsa de maní y huacatay",
+        "nombre": "Ocopa Arequipeña",
+        "nombre_corto": "Ocopa",
+        "precio": 20,
+        "categoria_id": 1,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto5.png"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Sopas y Caldos",
+    "descripcion": "Caldos y sopas típicas peruanas",
+    "productos": [
+      {
+        "producto_id": 6,
+        "descripcion": "Sopa de fideos con carne y huevo",
+        "nombre": "Sopa Criolla",
+        "nombre_corto": "Sopa Criolla",
+        "precio": 24,
+        "categoria_id": 2,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto6.png"
+      },
+      {
+        "producto_id": 7,
+        "descripcion": "Sopa cremosa con camarones",
+        "nombre": "Chupe de Camarones",
+        "nombre_corto": "Chupe Camarón",
+        "precio": 32,
+        "categoria_id": 2,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto7.png"
+      },
+      {
+        "producto_id": 8,
+        "descripcion": "Sopa verde de pollo con cilantro",
+        "nombre": "Aguadito de Pollo",
+        "nombre_corto": "Aguadito",
+        "precio": 23,
+        "categoria_id": 2,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto8.png"
+      },
+      {
+        "producto_id": 9,
+        "descripcion": "Caldo tradicional con gallina",
+        "nombre": "Caldo de Gallina",
+        "nombre_corto": "Caldo Gallina",
+        "precio": 22,
+        "categoria_id": 2,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto9.png"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "Platos Principales",
+    "descripcion": "Especialidades de la casa",
+    "productos": [
+      {
+        "producto_id": 10,
+        "descripcion": "Salteado de lomo con verduras y papas",
+        "nombre": "Lomo Saltado",
+        "nombre_corto": "Lomo Saltado",
+        "precio": 35,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto10.png"
+      },
+      {
+        "producto_id": 11,
+        "descripcion": "Pollo en salsa cremosa de ají amarillo",
+        "nombre": "Ají de Gallina",
+        "nombre_corto": "Ají Gallina",
+        "precio": 26,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto11.png"
+      },
+      {
+        "producto_id": 12,
+        "descripcion": "Arroz con pato en salsa de cilantro",
+        "nombre": "Arroz con Pato",
+        "nombre_corto": "Arroz Pato",
+        "precio": 36,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto12.png"
+      },
+      {
+        "producto_id": 13,
+        "descripcion": "Cabrito en salsa de cilantro con frijoles",
+        "nombre": "Seco de Cabrito",
+        "nombre_corto": "Seco Cabrito",
+        "precio": 34,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto13.png"
+      },
+      {
+        "producto_id": 14,
+        "descripcion": "Carnes y tubérculos cocidos a la tierra",
+        "nombre": "Pachamanca",
+        "nombre_corto": "Pachamanca",
+        "precio": 40,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto14.png"
+      },
+      {
+        "producto_id": 15,
+        "descripcion": "Rocoto relleno de carne y queso",
+        "nombre": "Rocoto Relleno",
+        "nombre_corto": "Rocoto",
+        "precio": 30,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 5,
+        "imagen": "assets/images/producto15.png"
+      },
+      {
+        "producto_id": 16,
+        "descripcion": "Tacu Tacu de frijoles con lomo saltado",
+        "nombre": "Tacu Tacu con Lomo",
+        "nombre_corto": "Tacu Tacu",
+        "precio": 31,
+        "categoria_id": 3,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto16.png"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "nombre": "Ceviches y Mariscos",
+    "descripcion": "Platos con pescados y mariscos frescos",
+    "productos": [
+      {
+        "producto_id": 17,
+        "descripcion": "Pescado fresco en leche de tigre",
+        "nombre": "Ceviche Clásico",
+        "nombre_corto": "Ceviche",
+        "precio": 33,
+        "categoria_id": 4,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto17.png"
+      },
+      {
+        "producto_id": 18,
+        "descripcion": "Láminas de pescado en salsa de ají",
+        "nombre": "Tiradito de Pescado",
+        "nombre_corto": "Tiradito",
+        "precio": 29,
+        "categoria_id": 4,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto18.png"
+      },
+      {
+        "producto_id": 19,
+        "descripcion": "Arroz con variedad de mariscos",
+        "nombre": "Arroz con Mariscos",
+        "nombre_corto": "Arroz Mariscos",
+        "precio": 35,
+        "categoria_id": 4,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto19.png"
+      },
+      {
+        "producto_id": 20,
+        "descripcion": "Mariscos variados fritos",
+        "nombre": "Jalea Mixta",
+        "nombre_corto": "Jalea",
+        "precio": 38,
+        "categoria_id": 4,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto20.png"
+      },
+      {
+        "producto_id": 21,
+        "descripcion": "Concentrado de ceviche con mariscos",
+        "nombre": "Leche de Tigre",
+        "nombre_corto": "Leche Tigre",
+        "precio": 18,
+        "categoria_id": 4,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto21.png"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "nombre": "Anticuchos y Parrillas",
+    "descripcion": "Carnes y brochetas a la parrilla",
+    "productos": []
+  },
+  {
+    "id": 6,
+    "nombre": "Postres Tradicionales",
+    "descripcion": "Dulces y postres peruanos",
+    "productos": [
+      {
+        "producto_id": 28,
+        "descripcion": "Postre de maíz morado con frutas",
+        "nombre": "Mazamorra Morada",
+        "nombre_corto": "Mazamorra",
+        "precio": 10,
+        "categoria_id": 6,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto28.png"
+      },
+      {
+        "producto_id": 29,
+        "descripcion": "Postre cremoso de arroz con leche",
+        "nombre": "Arroz con Leche",
+        "nombre_corto": "Arroz Leche",
+        "precio": 9,
+        "categoria_id": 6,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto29.png"
+      },
+      {
+        "producto_id": 30,
+        "descripcion": "Buñuelos de calabaza con miel",
+        "nombre": "Picarones",
+        "nombre_corto": "Picarones",
+        "precio": 11,
+        "categoria_id": 6,
+        "tenant_id": 1,
+        "unidad_medida_id": 6,
+        "imagen": "assets/images/producto30.png"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "nombre": "Bebidas no Alcohólicas",
+    "descripcion": "Refrescos y bebidas sin alcohol",
+    "productos": [
+      {
+        "producto_id": 22,
+        "descripcion": "Bebida de maíz morado con frutas",
+        "nombre": "Chicha Morada",
+        "nombre_corto": "Chicha Morada",
+        "precio": 8,
+        "categoria_id": 7,
+        "tenant_id": 1,
+        "unidad_medida_id": 4,
+        "imagen": "assets/images/producto22.png"
+      },
+      {
+        "producto_id": 23,
+        "descripcion": "Gaseosa peruana de sabor único",
+        "nombre": "Inca Kola",
+        "nombre_corto": "Inca Kola",
+        "precio": 7,
+        "categoria_id": 7,
+        "tenant_id": 1,
+        "unidad_medida_id": 4,
+        "imagen": "assets/images/producto23.png"
+      },
+      {
+        "producto_id": 24,
+        "descripcion": "Limonada con hierbabuena",
+        "nombre": "Limonada Andina",
+        "nombre_corto": "Limonada",
+        "precio": 6,
+        "categoria_id": 7,
+        "tenant_id": 1,
+        "unidad_medida_id": 4,
+        "imagen": "assets/images/producto24.png"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "nombre": "Bebidas Alcohólicas",
+    "descripcion": "Cócteles y bebidas con alcohol",
+    "productos": [
+      {
+        "producto_id": 25,
+        "descripcion": "Cóctel de pisco con limón y clara",
+        "nombre": "Pisco Sour",
+        "nombre_corto": "Pisco Sour",
+        "precio": 18,
+        "categoria_id": 8,
+        "tenant_id": 1,
+        "unidad_medida_id": 7,
+        "imagen": "assets/images/producto25.png"
+      },
+      {
+        "producto_id": 26,
+        "descripcion": "Pisco con ginger ale y limón",
+        "nombre": "Chilcano de Pisco",
+        "nombre_corto": "Chilcano",
+        "precio": 17,
+        "categoria_id": 8,
+        "tenant_id": 1,
+        "unidad_medida_id": 7,
+        "imagen": "assets/images/producto26.png"
+      },
+      {
+        "producto_id": 27,
+        "descripcion": "Pisco sour con maracuyá",
+        "nombre": "Maracuyá Sour",
+        "nombre_corto": "Maracuyá Sour",
+        "precio": 20,
+        "categoria_id": 8,
+        "tenant_id": 1,
+        "unidad_medida_id": 7,
+        "imagen": "assets/images/producto27.png"
+      }
+    ]
+  }
+]

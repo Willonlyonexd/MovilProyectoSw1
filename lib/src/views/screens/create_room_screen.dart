@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:reproductor_colaborativo_sw1/src/models/music.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/socket_services.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/spotify_services.dart';
+import 'package:reproductor_colaborativo_sw1/src/services1/socket_services.dart';
+import 'package:reproductor_colaborativo_sw1/src/services1/spotify_services.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import '../widgets/BorderAnimationButton.dart'; // Importa el widget del botón animado
 

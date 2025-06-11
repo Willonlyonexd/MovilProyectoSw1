@@ -1,0 +1,2 @@
+C:/Users/HP/Documents/ProyectoSW1/reproductor_colaborativo_sw1/android/app/.cxx/Debug/4bg5h2s2/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/HP/Documents/ProyectoSW1/reproductor_colaborativo_sw1/android/app/.cxx/Debug/4bg5h2s2/x86_64/CMakeFiles/rebuild_cache.dir

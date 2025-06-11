@@ -1,190 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/providers.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/user_service.dart';
-import '../widgets/spotify_button.dart'; // Asegúrate de importar el botón generalizado
+import 'package:reproductor_colaborativo_sw1/src/views/screens/inicio_page.dart';
+import 'package:reproductor_colaborativo_sw1/src/views/screens/menu_page.dart';
+import 'package:reproductor_colaborativo_sw1/src/views/screens/mis_reservas_page.dart';
+import 'package:reproductor_colaborativo_sw1/src/views/screens/perfil_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getUserProfile(
-          ref); // Asegúrate de tener este método correctamente implementado.
-    });
-  }
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = const [
+    InicioPage(),
+    MenuPage(),
+    MisReservasPage(),
+    MiPerfilPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
-    final playlists = [
-      {'name': 'Mi Playlist 1', 'description': 'Mis canciones favoritas'},
-      {'name': 'Workout Mix', 'description': 'Energía para entrenar'},
-      {'name': 'Relax Vibes', 'description': 'Canciones para relajarme'},
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.black, // Fondo oscuro
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-
-              // Avatar del usuario y texto alineado a la derecha
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.grey[800], // Fondo del avatar
-                    backgroundImage:
-                        user.images != null && user.images!.isNotEmpty
-                            ? NetworkImage(
-                                user.images![0].url) // Imagen del usuario
-                            : null, // Si no hay imagen, se deja sin fondo
-                    child: user.images == null || user.images!.isEmpty
-                        ? const Icon(
-                            Icons.person, // Ícono predeterminado
-                            color: Colors.white,
-                            size: 40,
-                          )
-                        : null, // No mostrar icono si hay imagen
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        
-                        const SizedBox(height: 5),
-                        Text(
-                          'Hola, ${user.displayName.isNotEmpty ? user.displayName : 'Usuario'}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                '¿Qué escucharemos hoy?',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Título de playlists
-              const Text(
-                'Tus Playlists',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Playlists dinámicas
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: playlists.length,
-                  itemBuilder: (context, index) {
-                    final playlist = playlists[index];
-                    return Container(
-                      width: 150,
-                      margin: const EdgeInsets.only(right: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              playlist['name']!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              playlist['description']!,
-                              style: const TextStyle(color: Colors.white70),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              const Spacer(),
-
-              // Animación Lottie centrada
-              Center(
-                child: Lottie.asset(
-                  'assets/Lottie/Animation-Home.json',
-                  width: 200, // Ajusta el tamaño según sea necesario
-                  height: 200,
-                  fit: BoxFit.contain,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Botones "Crear Sala" y "Unirse a Sala"
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  NeonButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/create_room');
-                    },
-                    text: 'Crear Sala',
-                    color: Colors.blue,
-                    icon: Icons.add,
-                  ),
-                  NeonButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/join_room');
-                    },
-                    text: 'Unirse a Sala',
-                    color: Colors.green,
-                    icon: Icons.group,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-            ],
+      backgroundColor: Colors.black,
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.tealAccent,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedFontSize: 12,
+        unselectedFontSize: 11,
+        elevation: 10,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: "Inicio",
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu_outlined),
+            activeIcon: Icon(Icons.restaurant_menu),
+            label: "Menú",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_note_outlined),
+            activeIcon: Icon(Icons.event_note),
+            label: "Reservas",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: "Perfil",
+          ),
+        ],
       ),
     );
   }
