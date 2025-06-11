@@ -9,7 +9,7 @@ import '../widgets/animated_gradient_text.dart';
 import 'package:reproductor_colaborativo_sw1/config/graphql_config.dart';
 import 'package:reproductor_colaborativo_sw1/models/cliente_model.dart';
 import 'package:reproductor_colaborativo_sw1/models/usuario_model.dart';
-import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
+//import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
 
 import 'dart:async';
 

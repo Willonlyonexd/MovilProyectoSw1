@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:reproductor_colaborativo_sw1/config/graphql_config.dart';
 import 'package:reproductor_colaborativo_sw1/models/reserva_model.dart';
 import 'package:reproductor_colaborativo_sw1/providers/reserva_provider.dart';
 
@@ -11,32 +12,23 @@ class MisReservasPage extends ConsumerStatefulWidget {
   ConsumerState<MisReservasPage> createState() => _MisReservasPageState();
 }
 
-class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
-  late TabController _tabController;
+class _MisReservasPageState extends ConsumerState<MisReservasPage> 
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   bool _isLoading = false;
   bool _initialDataLoaded = false;
   DateTime? _lastLoadTime;
   
-  // Solo 3 pestañas: Pendientes, Confirmadas, Historial
-  final List<String> _filtros = ['Pendientes', 'Confirmadas', 'Historial'];
-  
   @override
-  bool get wantKeepAlive => true; // Para AutomaticKeepAliveClientMixin
+  bool get wantKeepAlive => true;
   
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _filtros.length, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {});
-      }
-    });
     
     // Registrar para eventos de ciclo de vida de la app
     WidgetsBinding.instance.addObserver(this);
     
-    // Cargar reservas al iniciar
+    // Cargar reservas al iniciar, limpiando caché
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cargarReservas(forzarRefresh: true);
     });
@@ -59,13 +51,13 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Cuando la app vuelve al primer plano, recargar datos
     if (state == AppLifecycleState.resumed) {
+      limpiarCacheGraphQL();
       _cargarReservas(forzarRefresh: true);
     }
   }
   
   @override
   void dispose() {
-    _tabController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -81,18 +73,22 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
       debugPrint('🔄 MisReservasPage: Cargando reservas (forzarRefresh: $forzarRefresh)');
       
       if (forzarRefresh) {
-        // Resetear el provider completamente
+        limpiarCacheGraphQL();
         ref.invalidate(reservasClienteProvider);
       }
       
       // Esperar a que se complete la carga
-      await ref.refresh(reservasClienteProvider.future);
+      final reservas = await ref.refresh(reservasClienteProvider.future);
       
-      // Marcar que ya cargamos datos al menos una vez
+      // Depuración: Mostrar estado de cada reserva
+      for (final r in reservas) {
+        debugPrint('📊 Reserva[${r.reservaId}]: estado=${r.estado}, confirmada=${r.confirmada}, isPendiente=${r.isPendiente}, isConfirmada=${r.isConfirmada}');
+      }
+      
       _initialDataLoaded = true;
       _lastLoadTime = DateTime.now();
       
-      debugPrint('✅ MisReservasPage: Reservas recargadas exitosamente');
+      debugPrint('✅ MisReservasPage: ${reservas.length} reservas cargadas');
     } catch (e) {
       debugPrint('❌ MisReservasPage: Error al cargar reservas: ${e.toString()}');
     } finally {
@@ -104,198 +100,31 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
     }
   }
 
-  Future<void> _confirmarReserva(String reservaId) async {
-    // Mostrar diálogo de confirmación
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text('Confirmar Reserva', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          '¿Deseas confirmar esta reserva?', 
-          style: TextStyle(color: Colors.white70)
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No', style: TextStyle(color: Colors.white70)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            child: const Text('Sí, confirmar'),
-          ),
-        ],
-      ),
-    );
-    
-    if (confirmar != true) return;
-    
-    setState(() {
-      _isLoading = true;
-    });
-    
-    try {
-      final result = await ref.read(reservaActionsProvider.notifier).confirmarReserva(reservaId);
+  List<Reserva> _ordenarReservas(List<Reserva> reservas) {
+    // Ordenar reservas: próximas primero, luego las confirmadas, luego históricas
+    return reservas..sort((a, b) {
+      // 1. Reservas históricas al final
+      if (a.isHistorica && !b.isHistorica) return 1;
+      if (!a.isHistorica && b.isHistorica) return -1;
       
-      if (result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Reserva confirmada correctamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        // Forzar refresco completo
-        await _cargarReservas(forzarRefresh: true);
-        
-        // Cambiar a la pestaña de Confirmadas
-        _tabController.animateTo(1);
-        setState(() {}); // Forzar rebuild
-      } else {
-        throw Exception('No se pudo confirmar la reserva');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _cancelarReserva(String reservaId) async {
-    // Mostrar diálogo de confirmación
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text('Cancelar Reserva', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          '¿Estás seguro que deseas cancelar esta reserva?', 
-          style: TextStyle(color: Colors.white70)
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No', style: TextStyle(color: Colors.tealAccent)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-            ),
-            child: const Text('Sí, cancelar'),
-          ),
-        ],
-      ),
-    );
-    
-    if (confirmar != true) return;
-    
-    setState(() {
-      _isLoading = true;
-    });
-    
-    try {
-      final result = await ref.read(reservaActionsProvider.notifier).cancelarReserva(reservaId);
+      // 2. Para reservas activas, ordenar por fecha
+      final aFecha = DateTime.parse(a.fechaReserva);
+      final bFecha = DateTime.parse(b.fechaReserva);
       
-      if (result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Reserva cancelada correctamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        // Forzar refresco completo
-        await _cargarReservas(forzarRefresh: true);
-        
-        // Cambiar a la pestaña de Historial
-        _tabController.animateTo(2);
-        setState(() {}); // Forzar rebuild
-      } else {
-        throw Exception('No se pudo cancelar la reserva');
+      // Si ambas son históricas, las más recientes primero
+      if (a.isHistorica && b.isHistorica) {
+        return bFecha.compareTo(aFecha);
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-  
-  List<Reserva> _getReservasFiltradas(List<Reserva> reservas) {
-    // Listar todos los estados para depuración
-    final estadosInfo = reservas.map((r) => 
-      'ID:${r.reservaId} - ${r.estado} (confirmada=${r.confirmada})'
-    ).toList();
-    debugPrint('🔍 Estados detallados: $estadosInfo');
-    
-    switch (_tabController.index) {
-      case 0: // Pendientes - Activas no confirmadas
-        final pendientes = reservas.where((r) => r.isPendiente).toList();
-        
-        pendientes.sort((a, b) {
-          final aFecha = DateTime.parse(a.fechaReserva);
-          final bFecha = DateTime.parse(b.fechaReserva);
-          return aFecha.compareTo(bFecha); // Ordenar por proximidad
-        });
-        
-        debugPrint('📊 MisReservasPage: ${pendientes.length} reservas pendientes');
-        return pendientes;
-        
-      case 1: // Confirmadas - Activas y confirmadas
-        final confirmadas = reservas.where((r) => r.isConfirmada).toList();
-        
-        confirmadas.sort((a, b) {
-          final aFecha = DateTime.parse(a.fechaReserva);
-          final bFecha = DateTime.parse(b.fechaReserva);
-          return aFecha.compareTo(bFecha); // Ordenar por proximidad
-        });
-        
-        debugPrint('📊 MisReservasPage: ${confirmadas.length} reservas confirmadas');
-        return confirmadas;
-        
-      case 2: // Historial - Canceladas, Completadas, NoShow
-        final historial = reservas.where((r) => r.isHistorica).toList();
-        
-        historial.sort((a, b) {
-          final aFecha = DateTime.parse(a.fechaReserva);
-          final bFecha = DateTime.parse(b.fechaReserva);
-          return bFecha.compareTo(aFecha); // Historial: más recientes primero
-        });
-        
-        debugPrint('📊 MisReservasPage: ${historial.length} reservas en historial');
-        return historial;
-        
-      default:
-        return [];
-    }
+      
+      // Para las no históricas, las más próximas primero
+      return aFecha.compareTo(bFecha);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Para AutomaticKeepAliveClientMixin
+    super.build(context);
     
-    // Usar el provider para obtener las reservas
     final reservasAsync = ref.watch(reservasClienteProvider);
     
     return Scaffold(
@@ -327,22 +156,64 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              
+              const SizedBox(height: 16),
+              
+              // Banner informativo de WhatsApp
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF075E54).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF075E54).withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF25D366),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.telegram, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Gestión por WhatsApp",
+                            style: TextStyle(
+                              color: Colors.white, 
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "Recibirás un mensaje para confirmar o cancelar tu reserva. No es necesario hacerlo desde la app.",
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               // Botón para agregar reserva
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/reservation').then((_) async {
-                      await _cargarReservas(forzarRefresh: true);
-                      // Asegurar que después de crear una reserva se muestre la pestaña "Pendientes"
-                      _tabController.animateTo(0);
-                      setState(() {}); // Forzar rebuild
-                    });
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(context, '/reservation');
+                    limpiarCacheGraphQL();
+                    await _cargarReservas(forzarRefresh: true);
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text("Agregar Reserva"),
+                  label: const Text("Crear Nueva Reserva"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.tealAccent,
                     foregroundColor: Colors.black,
@@ -357,19 +228,43 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
 
               const SizedBox(height: 20),
               
-              // Pestañas para filtrar reservas
-              TabBar(
-                controller: _tabController,
-                indicatorColor: Colors.tealAccent,
-                labelColor: Colors.tealAccent,
-                unselectedLabelColor: Colors.white70,
-                tabs: _filtros.map((filtro) => Tab(text: filtro)).toList(),
-                onTap: (_) => setState(() {}),
+              // Resumen de reservas (opcional)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: reservasAsync.maybeWhen(
+                  data: (reservas) {
+                    final pendientes = reservas.where((r) => r.isPendiente).length;
+                    final confirmadas = reservas.where((r) => r.isConfirmada).length;
+                    final historicas = reservas.where((r) => r.isHistorica).length;
+                    
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildEstadisticaChip(
+                          pendientes, 
+                          'Por confirmar', 
+                          Colors.orange
+                        ),
+                        _buildEstadisticaChip(
+                          confirmadas, 
+                          'Confirmadas', 
+                          Colors.green
+                        ),
+                        _buildEstadisticaChip(
+                          historicas, 
+                          'Historial', 
+                          Colors.blueGrey
+                        ),
+                      ],
+                    );
+                  },
+                  orElse: () => const SizedBox(),
+                ),
               ),
-              
+
               const SizedBox(height: 15),
 
-              // Lista de reservas con estado async
+              // Lista de reservas (todas juntas, sin pestañas)
               Expanded(
                 child: Stack(
                   children: [
@@ -403,52 +298,19 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
                       ),
                       data: (reservas) {
                         if (reservas.isEmpty) {
-                          debugPrint('⚠️ MisReservasPage: No hay reservas para mostrar');
-                        } else {
-                          debugPrint('✅ MisReservasPage: ${reservas.length} reservas cargadas');
-                          
-                          // Contar reservas por tipo usando los métodos auxiliares del modelo
-                          final pendientes = reservas.where((r) => r.isPendiente).length;
-                          final confirmadas = reservas.where((r) => r.isConfirmada).length;
-                          final historial = reservas.where((r) => r.isHistorica).length;
-                          
-                          debugPrint('📊 MisReservasPage: Pendientes: $pendientes, Confirmadas: $confirmadas, Historial: $historial');
-                        }
-                        
-                        final reservasFiltradas = _getReservasFiltradas(reservas);
-                        
-                        if (reservasFiltradas.isEmpty) {
-                          String mensaje = '';
-                          IconData icono = Icons.calendar_today;
-                          
-                          switch (_tabController.index) {
-                            case 0:
-                              mensaje = "No tienes reservas pendientes.";
-                              icono = Icons.pending_actions;
-                              break;
-                            case 1:
-                              mensaje = "No tienes reservas confirmadas.";
-                              icono = Icons.check_circle_outline;
-                              break;
-                            case 2:
-                              mensaje = "No tienes historial de reservas.";
-                              icono = Icons.history;
-                              break;
-                          }
-                          
                           return Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  icono,
+                                const Icon(
+                                  Icons.calendar_today,
                                   color: Colors.white54,
                                   size: 60,
                                 ),
                                 const SizedBox(height: 16),
-                                Text(
-                                  mensaje,
-                                  style: const TextStyle(color: Colors.white70),
+                                const Text(
+                                  "No tienes reservas",
+                                  style: TextStyle(color: Colors.white70),
                                 ),
                                 const SizedBox(height: 8),
                                 TextButton.icon(
@@ -464,12 +326,14 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
                           );
                         }
                         
+                        final reservasOrdenadas = _ordenarReservas(reservas);
+                        
                         return ListView.separated(
                           padding: const EdgeInsets.only(bottom: 20),
-                          itemCount: reservasFiltradas.length,
+                          itemCount: reservasOrdenadas.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            final reserva = reservasFiltradas[index];
+                            final reserva = reservasOrdenadas[index];
                             return _buildReservaCard(context, reserva);
                           },
                         );
@@ -488,6 +352,37 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
             ],
           ),
         ),
+      ),
+    );
+  }
+  
+  Widget _buildEstadisticaChip(int cantidad, String texto, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            cantidad.toString(),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            texto,
+            style: TextStyle(
+              color: color.withOpacity(0.8),
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -599,58 +494,34 @@ class _MisReservasPageState extends ConsumerState<MisReservasPage> with SingleTi
               ),
             const SizedBox(height: 12),
             
-            // Mostrar botones de acción según el estado
-            if (!esHistorico) Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: () => _cancelarReserva(reserva.reservaId),
-                  icon: const Icon(Icons.cancel, size: 18),
-                  label: const Text("Cancelar"),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.redAccent,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // No mostrar el botón Confirmar si ya está confirmada (usando el método del modelo)
-                if (!estaConfirmada)
-                  TextButton.icon(
-                    onPressed: () => _confirmarReserva(reserva.reservaId),
-                    icon: const Icon(Icons.check_circle, size: 18),
-                    label: const Text("Confirmar"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.green,
-                    ),
-                  )
-                else
-                  TextButton.icon(
-                    onPressed: () {
-                      // Navegar al detalle de la reserva
-                    },
-                    icon: const Icon(Icons.info_outline, size: 18),
-                    label: const Text("Detalles"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.tealAccent,
-                    ),
-                  ),
-              ],
-            ) else
-              // Para reservas históricas, solo mostrar detalles
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+            // Mensaje de WhatsApp en lugar de botones de acción
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF075E54).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF25D366).withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      // Navegar al detalle de la reserva
-                    },
-                    icon: const Icon(Icons.history, size: 18),
-                    label: const Text("Ver detalles"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.tealAccent,
+                  const Icon(
+                    Icons.telegram, 
+                    color: Color(0xFF25D366),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      "Gestiona esta reserva por WhatsApp",
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
               ),
+            ),
           ],
         ),
       ),

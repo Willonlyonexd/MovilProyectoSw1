@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Cambiar provider por riverpod
 import 'package:reproductor_colaborativo_sw1/src/services1/socket_services.dart';
-import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_screen.dart';
+//import 'package:reproductor_colaborativo_sw1/src/views/screens/create_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/registro_cliente_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/reserva_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/home_screen.dart'; 
 import 'package:reproductor_colaborativo_sw1/src/views/screens/onboarding.dart';
-import 'package:reproductor_colaborativo_sw1/src/views/screens/principal_room_screen.dart';
+//import 'package:reproductor_colaborativo_sw1/src/views/screens/principal_room_screen.dart';
 import 'package:reproductor_colaborativo_sw1/src/views/screens/menu_screen.dart';
 
 // Crear un provider para SocketProvider
@@ -33,7 +33,7 @@ class MyApp extends ConsumerWidget {
         '/home': (context) => const HomeScreen(),
         '/reservation': (context) => const ReservaScreen(),
         '/join_room': (context) => const MenuScreen(),
-        '/principal_room': (context) => const PrincipalRoomScreen(),
+        //'/principal_room': (context) => const PrincipalRoomScreen(),
         '/registro': (context) => const RegistroClienteScreen(),
       },
     );

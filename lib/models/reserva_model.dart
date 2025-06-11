@@ -32,11 +32,29 @@ class Reserva {
   });
 
   factory Reserva.fromJson(Map<String, dynamic> json) {
+    // Procesar el valor de confirmada correctamente para cualquier tipo de dato
+    final confirmadaRaw = json['confirmada'];
+    bool isConfirmed;
+    
+    // MEJORADO: Solo marcar como confirmada si viene explícitamente como true
+    if (confirmadaRaw == null) {
+      // Las reservas recién creadas vienen con confirmada=null
+      isConfirmed = false;
+    } else if (confirmadaRaw is bool) {
+      isConfirmed = confirmadaRaw;
+    } else if (confirmadaRaw is String) {
+      isConfirmed = confirmadaRaw.toLowerCase() == 'true';
+    } else if (confirmadaRaw is num) {
+      isConfirmed = confirmadaRaw != 0;
+    } else {
+      isConfirmed = false;
+      print('⚠️ Tipo de dato inesperado para confirmada: ${confirmadaRaw.runtimeType}');
+    }
+    
     // Capturar los valores originales para debugging
     String originalState = (json['estado'] ?? 'Activa').toString();
-    bool isConfirmed = json['confirmada'] == true;
     
-    print('📊 Reserva: Estado=${originalState}, Confirmada=${isConfirmed}');
+    print('📊 Reserva[${json['reservaId']}]: Estado=$originalState, Confirmada raw=$confirmadaRaw → processed=$isConfirmed');
     
     return Reserva(
       reservaId: json['reservaId'] ?? '',
@@ -61,7 +79,8 @@ class Reserva {
   // Método helper para mostrar el estado de manera amigable en la UI
   String get estadoFormatted {
     if (estado.toUpperCase() == 'ACTIVA') {
-      return confirmada ? 'Confirmada' : 'Pendiente';
+      // Solo mostrar como "Confirmada" si confirmada es explícitamente true
+      return confirmada == true ? 'Confirmada' : 'Pendiente WhatsApp';
     }
     
     switch (estado.toUpperCase()) {
@@ -79,7 +98,7 @@ class Reserva {
   // Método helper para obtener color según estado para la UI
   Color getColorByEstado() {
     if (estado.toUpperCase() == 'ACTIVA') {
-      return confirmada ? Colors.green : Colors.orange;
+      return confirmada == true ? Colors.green : Colors.orange;
     }
     
     switch (estado.toUpperCase()) {
@@ -96,11 +115,11 @@ class Reserva {
   
   // Método para verificar si es reserva pendiente
   bool get isPendiente => 
-      estado.toUpperCase() == 'ACTIVA' && !confirmada;
+      estado.toUpperCase() == 'ACTIVA' && confirmada != true;
   
-  // Método para verificar si es reserva confirmada
+  // Método para verificar si es reserva confirmada 
   bool get isConfirmada => 
-      estado.toUpperCase() == 'ACTIVA' && confirmada;
+      estado.toUpperCase() == 'ACTIVA' && confirmada == true;
   
   // Método para verificar si es reserva histórica
   bool get isHistorica {

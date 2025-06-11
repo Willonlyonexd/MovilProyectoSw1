@@ -361,6 +361,10 @@ class _ReservaScreenState extends ConsumerState<ReservaScreen> {
         debugPrint('✅ ReservaScreen: Resultado de crear reserva: $resultado');
         
         if (resultado) {
+          // IMPORTANTE: Limpiar caché después de crear la reserva
+          limpiarCacheGraphQL();
+          debugPrint('🧹 ReservaScreen: Caché limpiada después de crear reserva');
+          
           // Mostrar mensaje de éxito y regresar
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

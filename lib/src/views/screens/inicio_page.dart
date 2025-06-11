@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
+//import 'package:lottie/lottie.dart';
 import 'package:reproductor_colaborativo_sw1/api/popular_products_provider.dart';
-import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
+//import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
 import 'package:reproductor_colaborativo_sw1/src/services1/providers.dart';
-import 'package:reproductor_colaborativo_sw1/src/services1/user_service.dart';
-import '../widgets/spotify_button.dart';
+//import 'package:reproductor_colaborativo_sw1/src/services1/user_service.dart';
+//import '../widgets/spotify_button.dart';
 
 class InicioPage extends ConsumerWidget {
   const InicioPage({super.key});

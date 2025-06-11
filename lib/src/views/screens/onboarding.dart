@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
+//import 'package:reproductor_colaborativo_sw1/src/views/screens/login_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:lottie/lottie.dart';  // Importa la librería Lottie
 
@@ -16,33 +16,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Lista de páginas con datos
   final List<ContentConfig> slides = [
     ContentConfig(
-      title: '¡Bienvenido a Peru XD!',
-      description: 'Disfruta la mejor experiencia gastronómica desde tu móvil',
-      pathImage: 'assets/Lottie/Animation-RoomPrincipal.json', // Animación Lottie
+      title: '¡Bienvenido a Rincon Andino 🇵🇪!',
+      description: 'Disfruta la mejor experiencia gastronómica del Perú',
+      pathImage: 'assets/Lottie/inicio.json', // Animación Lottie
       backgroundColor: const Color.fromARGB(255, 0, 0, 0)!,  // Fondo oscuro azul grisáceo
     ),
     ContentConfig(
-      title: 'Crea tu propia sala',
-      description: 'Invita a tus amigos y empieza a disfrutar de música juntos. ¡Crea una sala en segundos y comienza a compartir!',
-      pathImage: 'assets/Lottie/22.json', // Animación Lottie
+      title: 'Reserva desde la comodidad de tu hogar',
+      description: 'Reserva tu mesa en Rincon Andino y disfruta de una experiencia única con la mejor comida peruana.',
+    //escription: 'Invita a tus amigos y empieza a disfrutar de música juntos. ¡Crea una sala en segundos y comienza a compartir!',
+      pathImage: 'assets/Lottie/wp.json', // Animación Lottie
       backgroundColor: const Color.fromARGB(255, 0, 79, 67)!,  // Fondo oscuro verde azulado
     ),
     ContentConfig(
-      title: 'Únete a una sala',
-      description: 'Únete a las salas de otros usuarios, comparte gustos musicales y vive la experiencia de escuchar juntos.',
-      pathImage: 'assets/Lottie/23.json', // Animación Lottie
+      title: 'Visualiza nuestro menú',
+      description: 'Explora una variedad de platos peruanos y elige tus favoritos.',
+      pathImage: 'assets/Lottie/menu.json', // Animación Lottie
       backgroundColor: const Color.fromARGB(255, 102, 4, 76)!,  // Fondo oscuro naranja
     ),
     ContentConfig(
-      title: 'La IA te ayuda a elegir',
-      description: 'Nuestra inteligencia artificial sugiere canciones basadas en el gusto de todos. Luego, ¡tú y tus amigos pueden votar por las favoritas y hacer que suenen en la lista!',
+      title: 'No sabes que comer? te recomendaremos distintos platos del menú',
+      description: 'Nuestra inteligencia artificial sugiere platos basados en tus preferencias y la de otros.',
       pathImage: 'assets/Lottie/ia.json', // Animación Lottie
       backgroundColor: Colors.indigo[900]!,  // Fondo oscuro índigo
     ),
     ContentConfig(
       title: '¡Todo listo!',
-      description: '¡Ahora es tu turno! Crea una sala, invita a tus amigos y empieza a disfrutar de la música colaborativa.',
-      pathImage: 'assets/Lottie/Animation-Pulpo.json', // Animación Lottie
+      description: '¡Ahora es tu turno! ingresa a tu cuenta y comienza a disfrutar de la mejor experiencia gastronómica del Perú.',
+      pathImage: 'assets/Lottie/pedido.json', // Animación Lottie
       backgroundColor: Colors.black87,  // Fondo casi negro
     ),
   ];

@@ -53,6 +53,9 @@ class ReservaRepository {
         return [];
       }
       
+      // INSPECCIÓN DETALLADA de la respuesta (agregado para debug)
+      debugPrint('🔍 RESPUESTA GRAPHQL COMPLETA: ${result.data.toString()}');
+      
       final reservasList = result.data!['reservasByTenantIdAndClienteId'] as List<dynamic>;
       debugPrint('✅ ReservaRepository: Se encontraron ${reservasList.length} reservas');
       
@@ -60,6 +63,13 @@ class ReservaRepository {
       List<Reserva> reservas = [];
       for (var json in reservasList) {
         try {
+          // SOLUCIÓN: Verificar si la reserva fue confirmada pero viene con confirmada=null
+          if (json['confirmada'] == null && json['estado']?.toString().toUpperCase() == 'ACTIVA') {
+            // Si la reserva es Activa y fue confirmada con confirmarReserva, considerarla no confirmada
+            // hasta que el usuario la confirme explícitamente para mantener consistencia
+            json['confirmada'] = false;
+          }
+          
           reservas.add(Reserva.fromJson(json));
         } catch (e) {
           debugPrint('⚠️ ReservaRepository: Error al procesar una reserva: $e. Datos: $json');
@@ -119,6 +129,7 @@ class ReservaRepository {
           variables: {
             'input': inputVars
           },
+          fetchPolicy: FetchPolicy.networkOnly, // Forzar usar red
         ),
       );
       
@@ -131,6 +142,14 @@ class ReservaRepository {
         debugPrint('❌ ReservaRepository: Respuesta vacía al crear reserva');
         throw Exception('No se recibió respuesta del servidor al crear la reserva');
       }
+      
+      // IMPORTANTE: Al crear reserva, asegurarnos de que confirmada=false
+      final reservaNueva = result.data!['createReserva'] as Map<String, dynamic>;
+      reservaNueva['confirmada'] = false;
+      debugPrint('🔧 ReservaRepository: Marcando nueva reserva como no confirmada explícitamente');
+      
+      // IMPORTANTE: Limpiar caché después de crear
+      _client.cache.store.reset();
       
       debugPrint('✅ ReservaRepository: Reserva creada exitosamente');
       return Reserva.fromJson(result.data!['createReserva']);
@@ -154,6 +173,7 @@ class ReservaRepository {
           variables: {
             'id': reservaId,
           },
+          fetchPolicy: FetchPolicy.networkOnly, // Forzar usar red
         ),
       );
       
@@ -161,6 +181,25 @@ class ReservaRepository {
         debugPrint('❌ ReservaRepository: Error al confirmar reserva: ${result.exception.toString()}');
         throw Exception(result.exception.toString());
       }
+      
+      // INSPECCIÓN DETALLADA de la respuesta
+      if (result.data != null && result.data!['confirmarReserva'] != null) {
+        final respuesta = result.data!['confirmarReserva'] as Map<String, dynamic>;
+        debugPrint('✅ RESPUESTA CONFIRMAR: ${respuesta.toString()}');
+        
+        // SOLUCIÓN: Establecer explícitamente el campo confirmada=true si el backend no lo hace
+        if (respuesta['confirmada'] == null && respuesta['estado']?.toString().toUpperCase() == 'ACTIVA') {
+          debugPrint('🔧 ReservaRepository: Corrigiendo respuesta - estableciendo confirmada=true explícitamente');
+          respuesta['confirmada'] = true;
+        }
+        
+        // Registrar los valores para depuración
+        debugPrint('📊 confirmada=${respuesta['confirmada']} (${respuesta['confirmada'].runtimeType})');
+        debugPrint('📊 estado=${respuesta['estado']} (${respuesta['estado'].runtimeType})');
+      }
+      
+      // IMPORTANTE: Limpiar caché después de confirmar
+      _client.cache.store.reset();
       
       debugPrint('✅ ReservaRepository: Reserva confirmada exitosamente');
       return true;
@@ -190,6 +229,7 @@ class ReservaRepository {
         MutationOptions(
           document: gql(ReservaQueries.cancelarReserva),
           variables: variables,
+          fetchPolicy: FetchPolicy.networkOnly, // Forzar usar red
         ),
       );
       
@@ -197,6 +237,9 @@ class ReservaRepository {
         debugPrint('❌ ReservaRepository: Error al cancelar reserva: ${result.exception.toString()}');
         throw Exception(result.exception.toString());
       }
+      
+      // IMPORTANTE: Limpiar caché después de cancelar
+      _client.cache.store.reset();
       
       debugPrint('✅ ReservaRepository: Reserva cancelada exitosamente');
       return true;

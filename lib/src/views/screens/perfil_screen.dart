@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:reproductor_colaborativo_sw1/providers/auth_provider.dart';
-import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
+//import 'package:reproductor_colaborativo_sw1/services/user_provider.dart';
 
 class MiPerfilPage extends ConsumerWidget {
   const MiPerfilPage({super.key});
