@@ -10,11 +10,9 @@ class Reserva {
   final Mesa mesa;
   final Cliente cliente;
   final String estado;
-  // Cambiar a no-nullable con valor por defecto
   final bool mensajeConfirmacionEnviado; 
   final String? mensajeConfirmacionEnviadoEn;
   final String? horaLimiteConfirmacion;
-  // Cambiar a no-nullable con valor por defecto
   final bool confirmada;
   final String? observaciones;
 
@@ -26,7 +24,6 @@ class Reserva {
     required this.mesa,
     required this.cliente,
     required this.estado,
-    // Valores por defecto para los booleanos
     this.mensajeConfirmacionEnviado = false,
     this.mensajeConfirmacionEnviadoEn,
     this.horaLimiteConfirmacion,
@@ -35,7 +32,12 @@ class Reserva {
   });
 
   factory Reserva.fromJson(Map<String, dynamic> json) {
-    // Conversiones seguras para evitar errores con valores nulos
+    // Capturar los valores originales para debugging
+    String originalState = (json['estado'] ?? 'Activa').toString();
+    bool isConfirmed = json['confirmada'] == true;
+    
+    print('📊 Reserva: Estado=${originalState}, Confirmada=${isConfirmed}');
+    
     return Reserva(
       reservaId: json['reservaId'] ?? '',
       fechaReserva: json['fechaReserva'] ?? '',
@@ -47,23 +49,22 @@ class Reserva {
       cliente: json['cliente'] != null 
           ? Cliente.fromJson(json['cliente']) 
           : Cliente(clienteId: '0', nombre: '', apellido: '', username: ''),
-      estado: json['estado'] ?? 'PENDIENTE',
-      // Conversión segura para booleanos
+      estado: originalState,
       mensajeConfirmacionEnviado: json['mensajeConfirmacionEnviado'] == true,
       mensajeConfirmacionEnviadoEn: json['mensajeConfirmacionEnviadoEn'],
       horaLimiteConfirmacion: json['horaLimiteConfirmacion'],
-      confirmada: json['confirmada'] == true,
+      confirmada: isConfirmed,
       observaciones: json['observaciones'],
     );
   }
 
-  // Método helper para mostrar el estado de manera amigable
+  // Método helper para mostrar el estado de manera amigable en la UI
   String get estadoFormatted {
-    switch (estado) {
-      case 'PENDIENTE':
-        return 'Pendiente';
-      case 'CONFIRMADA':
-        return 'Confirmada';
+    if (estado.toUpperCase() == 'ACTIVA') {
+      return confirmada ? 'Confirmada' : 'Pendiente';
+    }
+    
+    switch (estado.toUpperCase()) {
       case 'CANCELADA':
         return 'Cancelada';
       case 'COMPLETADA':
@@ -75,13 +76,13 @@ class Reserva {
     }
   }
 
-  // Método helper para obtener color según estado
+  // Método helper para obtener color según estado para la UI
   Color getColorByEstado() {
-    switch (estado) {
-      case 'PENDIENTE':
-        return Colors.orange;
-      case 'CONFIRMADA':
-        return Colors.green;
+    if (estado.toUpperCase() == 'ACTIVA') {
+      return confirmada ? Colors.green : Colors.orange;
+    }
+    
+    switch (estado.toUpperCase()) {
       case 'CANCELADA':
         return Colors.red;
       case 'COMPLETADA':
@@ -91,5 +92,21 @@ class Reserva {
       default:
         return Colors.black;
     }
+  }
+  
+  // Método para verificar si es reserva pendiente
+  bool get isPendiente => 
+      estado.toUpperCase() == 'ACTIVA' && !confirmada;
+  
+  // Método para verificar si es reserva confirmada
+  bool get isConfirmada => 
+      estado.toUpperCase() == 'ACTIVA' && confirmada;
+  
+  // Método para verificar si es reserva histórica
+  bool get isHistorica {
+    final upperState = estado.toUpperCase();
+    return upperState == 'CANCELADA' || 
+           upperState == 'COMPLETADA' || 
+           upperState == 'NO_SHOW';
   }
 }

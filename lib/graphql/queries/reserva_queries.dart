@@ -13,6 +13,13 @@ class ReservaQueries {
           mesaId
           numero
           capacidad
+          estado
+        }
+        cliente {
+          clienteId
+          nombre
+          apellido
+          username
         }
       }
     }
@@ -26,10 +33,16 @@ class ReservaQueries {
         hora
         cantidadPersonas
         estado
+        confirmada
         mesa {
           mesaId
           numero
           capacidad
+        }
+        cliente {
+          clienteId
+          nombre
+          apellido
         }
       }
     }
@@ -41,6 +54,8 @@ class ReservaQueries {
         reservaId
         estado
         confirmada
+        fechaReserva
+        hora
       }
     }
   ''';
@@ -50,6 +65,9 @@ class ReservaQueries {
       cancelarReserva(id: \$id, motivo: \$motivo) {
         reservaId
         estado
+        confirmada
+        fechaReserva
+        hora
       }
     }
   ''';
