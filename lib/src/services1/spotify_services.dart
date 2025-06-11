@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:reproductor_colaborativo_sw1/src/models/music.dart';
-import 'package:reproductor_colaborativo_sw1/src/services/providers.dart';
+import 'package:reproductor_colaborativo_sw1/src/services1/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List<Music>> searchSpotify(String query, WidgetRef ref) async {

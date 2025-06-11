@@ -16,8 +16,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Lista de páginas con datos
   final List<ContentConfig> slides = [
     ContentConfig(
-      title: '¡Bienvenido a Ficctfy!',
-      description: 'La mejor forma de disfrutar de la música en compañía. ¡Crea, comparte y vota las canciones con tus amigos en tiempo real!',
+      title: '¡Bienvenido a Peru XD!',
+      description: 'Disfruta la mejor experiencia gastronómica desde tu móvil',
       pathImage: 'assets/Lottie/Animation-RoomPrincipal.json', // Animación Lottie
       backgroundColor: const Color.fromARGB(255, 0, 0, 0)!,  // Fondo oscuro azul grisáceo
     ),
@@ -75,12 +75,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 currentPage < 4
                     ? GestureDetector(
                         onTap: () {
-                          // Redirige a la pantalla principal cuando se omite
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
-                        },
+  Navigator.pushReplacementNamed(context, '/login');
+},
+
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20),
                           child: Text(
@@ -132,12 +129,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       )
                     : ElevatedButton(
                         onPressed: () {
-                          // Redirige al usuario a la pantalla principal o login
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
-                        },
+  Navigator.pushReplacementNamed(context, '/login');
+},
+
                         style: ElevatedButton.styleFrom(
                           foregroundColor: const Color.fromARGB(255, 11, 11, 11), backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
